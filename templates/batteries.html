@@ -1,41 +1,64 @@
 {% extends "base.html" %}
+
 {% block content %}
 
-<h2>Battery Management</h2>
+<h1>Batteries</h1>
 
-<div class="card">
-    <h3>Add Battery</h3>
-    <form method="POST" action="{{ url_for('add_battery') }}">
-        <input name="brand" placeholder="Brand" required>
-        <input name="capacity" placeholder="Capacity">
-        <input name="notes" placeholder="Notes">
-        <button type="submit">Add</button>
-    </form>
-</div>
+<h2>Add Battery</h2>
 
-<table>
-    <tr>
-        <th>Brand</th>
-        <th>Capacity</th>
-        <th>Cycles</th>
-        <th>Flights Used</th>
-        <th>Actions</th>
-    </tr>
+<form method="POST" action="/add_battery">
 
-    {% for b in batteries %}
-    <tr>
-        <td>{{ b.brand }}</td>
-        <td>{{ b.capacity }}</td>
-        <td>{{ b.cycles }}</td>
-        <td>{{ b.flights|length }}</td>
-        <td>
-            <a href="{{ url_for('delete_battery', id=b.id) }}"
-               onclick="return confirm('Delete this battery?');">
-               Delete
-            </a>
-        </td>
-    </tr>
-    {% endfor %}
+<label>Brand</label><br>
+<input type="text" name="brand" required><br><br>
+
+<label>Capacity (mAh)</label><br>
+<input type="number" name="capacity" required><br><br>
+
+<label>Type</label><br>
+<select name="type">
+<option>LiPo</option>
+<option>LiFe</option>
+<option>NiMH</option>
+<option>LiIon</option>
+<option>Other</option>
+</select><br><br>
+
+<label>Cells (S)</label><br>
+<input type="number" name="cells" min="1" max="12"><br><br>
+
+<label>Notes</label><br>
+<input type="text" name="notes"><br><br>
+
+<button type="submit">Add Battery</button>
+
+</form>
+
+<hr>
+
+<h2>Battery List</h2>
+
+<table border="1">
+
+<tr>
+<th>Brand</th>
+<th>Capacity</th>
+<th>Type</th>
+<th>Cells</th>
+<th>Notes</th>
+</tr>
+
+{% for b in batteries %}
+
+<tr>
+<td>{{ b.brand }}</td>
+<td>{{ b.capacity }} mAh</td>
+<td>{{ b.type }}</td>
+<td>{{ b.cells }}S</td>
+<td>{{ b.notes }}</td>
+</tr>
+
+{% endfor %}
+
 </table>
 
 {% endblock %}
