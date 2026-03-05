@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Owner Information</h2>
+
+<form method="POST">
+    <input name="name" placeholder="Name" value="{{ owner.name if owner }}">
+    <input name="ama_number" placeholder="AMA Number" value="{{ owner.ama_number if owner }}">
+    <input name="faa_number" placeholder="FAA Number" value="{{ owner.faa_number if owner }}">
+    <br><br>
+    AMA Expiration:
+    <input type="date" name="ama_expiration" value="{{ owner.ama_expiration if owner }}">
+    <br>
+    FAA Expiration:
+    <input type="date" name="faa_expiration" value="{{ owner.faa_expiration if owner }}">
+    <br><br>
+    <button type="submit">Save</button>
+</form>
+
+{% endblock %}

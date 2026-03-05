@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RC Inventory</title>
+    <style>
+        body { font-family: Arial; margin: 0; padding: 0; background: #f4f4f4; }
+        nav {
+            background: #222;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+        nav a {
+            color: white;
+            margin-right: 15px;
+            text-decoration: none;
+        }
+        nav a:hover { text-decoration: underline; }
+        .container { padding: 20px; }
+        .card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        th { background: #eee; }
+        button { padding: 5px 10px; }
+        .danger { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div>
+        <a href="{{ url_for('dashboard') }}">RC Inventory</a>
+        <a href="{{ url_for('aircraft') }}">Aircraft</a>
+        <a href="{{ url_for('batteries') }}">Batteries</a>
+        <a href="{{ url_for('owner') }}">Owner</a>
+        <a href="{{ url_for('admin') }}">Admin</a>
+    </div>
+
+    <div>
+        {% if owner %}
+            {{ owner.name }} |
+            AMA: {{ owner.ama_number }} |
+            FAA: {{ owner.faa_number }}
+        {% endif %}
+    </div>
+</nav>
+
+<div class="container">
+    {% block content %}{% endblock %}
+</div>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Battery Management</h2>
+
+<div class="card">
+    <h3>Add Battery</h3>
+    <form method="POST" action="{{ url_for('add_battery') }}">
+        <input name="brand" placeholder="Brand" required>
+        <input name="capacity" placeholder="Capacity">
+        <input name="notes" placeholder="Notes">
+        <button type="submit">Add</button>
+    </form>
+</div>
+
+<table>
+    <tr>
+        <th>Brand</th>
+        <th>Capacity</th>
+        <th>Cycles</th>
+        <th>Flights Used</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for b in batteries %}
+    <tr>
+        <td>{{ b.brand }}</td>
+        <td>{{ b.capacity }}</td>
+        <td>{{ b.cycles }}</td>
+        <td>{{ b.flights|length }}</td>
+        <td>
+            <a href="{{ url_for('delete_battery', id=b.id) }}"
+               onclick="return confirm('Delete this battery?');">
+               Delete
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Admin Panel</h2>
+
+<div class="card">
+    <h3>Danger Zone</h3>
+    <a href="{{ url_for('reset_database') }}"
+       onclick="return confirm('This will wipe the entire database. Continue?');">
+       Reset Entire Database
+    </a>
+</div>
+<form action="{{ url_for('reset_database') }}" method="POST">
+    <button type="submit"
+            onclick="return confirm('Are you sure you want to reset the entire database?')">
+        Reset Database
+    </button>
+</form>
+
+{% endblock %}

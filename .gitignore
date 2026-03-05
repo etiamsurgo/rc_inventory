@@ -1,0 +1,11 @@
+﻿venv/
+instance/
+static/uploads/
+*.pyc
+__pycache__/
+.env
+.vscode/
+*.sqlite3
+coverage/
+.pytest_cache/
+uploads/

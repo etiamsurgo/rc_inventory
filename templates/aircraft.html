@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Aircraft Management</h2>
+
+<div class="card">
+    <h3>Add Aircraft</h3>
+    <form method="POST" action="{{ url_for('add_aircraft') }}">
+        <input name="name" placeholder="Name" required>
+        <input name="brand" placeholder="Brand">
+        <input name="category" placeholder="Category">
+        <input name="notes" placeholder="Notes">
+        <button type="submit">Add</button>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Sort & Filter</h3>
+
+    <a href="{{ url_for('aircraft', sort='name') }}">Sort by Name</a> |
+    <a href="{{ url_for('aircraft', sort='hours') }}">Sort by Hours</a>
+
+    <br><br>
+
+    <form method="GET" action="{{ url_for('aircraft') }}">
+        <select name="category">
+            <option value="">All Categories</option>
+            {% for c in categories %}
+                <option value="{{ c[0] }}">{{ c[0] }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Filter</button>
+    </form>
+</div>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Brand</th>
+        <th>Category</th>
+        <th>Total Hours</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for a in aircraft %}
+    <tr>
+        <td>{{ a.name }}</td>
+        <td>{{ a.brand }}</td>
+        <td>{{ a.category }}</td>
+        <td>{{ "%.1f"|format(a.total_hours) }}</td>
+        <td>
+            <a href="{{ url_for('delete_aircraft', id=a.id) }}"
+               onclick="return confirm('Delete aircraft and all logs?');">
+               Delete
+            </a>
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan="5">
+
+            <b>Log Flight:</b>
+            <form method="POST" action="{{ url_for('add_flight', aircraft_id=a.id) }}">
+                <input type="number" step="0.1" name="duration" placeholder="Minutes" required>
+
+                <select name="battery_id" required>
+                    {% for b in batteries %}
+                        <option value="{{ b.id }}">
+                            {{ b.brand }} {{ b.capacity }} (Cycles: {{ b.cycles }})
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit">Add Flight</button>
+            </form>
+
+            <br>
+
+            <b>Flight History:</b>
+            <ul>
+                {% for f in a.flights %}
+                    <li>
+                        {{ f.date.strftime('%Y-%m-%d') }}
+                        - {{ f.duration }} min
+                        - Battery: {{ f.battery.brand }} {{ f.battery.capacity }}
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <b>Maintenance Logs:</b>
+            <ul>
+                {% for log in a.maint_logs %}
+                    <li>{{ log.date.strftime('%Y-%m-%d') }} - {{ log.description }}</li>
+                {% endfor %}
+            </ul>
+
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
