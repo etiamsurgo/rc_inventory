@@ -47,7 +47,10 @@
         <td>{{ a.name }}</td>
         <td>{{ a.brand }}</td>
         <td>{{ a.category }}</td>
-        <td>{{ "%.1f"|format(a.total_hours) }}</td>
+        <td>
+        {% set total_minutes = a.flights | sum(attribute='duration') %}
+        {{ total_minutes // 60 }}h {{ total_minutes % 60 }}m
+        </td>
         <td>
             <a href="{{ url_for('delete_aircraft', id=a.id) }}"
                onclick="return confirm('Delete aircraft and all logs?');">
