@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Dashboard</h2>
+
+<ul>
+<li>Aircraft: {{ aircraft_count }}</li>
+<li>Batteries: {{ battery_count }}</li>
+<li>Total Flights: {{ flight_count }}</li>
+<li>Total Flight Time: {{ format_hours(total_minutes) }}</li>
+</ul>
+
+<hr>
+
+<h2>Aircraft</h2>
+
+{% if aircraft %}
+
+<ul>
+
+{% for a in aircraft %}
+
+<li>
+
+<a href="/aircraft/{{ a.id }}">
+<strong>{{ a.name }}</strong>
+</a>
+
+({{ a.type }}) - {{ format_hours(a.total_minutes) }}
+
+<br>
+
+Quick Log:
+<a href="/quick_flight/{{a.id}}/5">[5]</a>
+<a href="/quick_flight/{{a.id}}/7">[7]</a>
+<a href="/quick_flight/{{a.id}}/10">[10]</a>
+
+</li>
+
+<br>
+
+{% endfor %}
+
+</ul>
+
+{% else %}
+
+<p>No aircraft added yet.</p>
+
+{% endif %}
+
+<hr>
+
+<h2>Batteries</h2>
+
+<ul>
+
+{% for b in batteries %}
+
+<li>
+
+{{ b.brand }} {{ b.capacity }}mAh {{ b.cells }}S
+
+- Cycles: {{ b.cycles }}
+
+{{ b.warning }}
+
+</li>
+
+{% endfor %}
+
+</ul>
+
+<hr>
+
+<h2>Recent Flights</h2>
+
+<ul>
+
+{% for f in flights %}
+
+<li>
+
+{{ f.aircraft.name }}
+
+- {{ f.duration_minutes }} min
+
+- {{ f.date.strftime("%Y-%m-%d %H:%M") }}
+
+</li>
+
+{% endfor %}
+
+</ul>
+
+{% endblock %}

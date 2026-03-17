@@ -2,29 +2,41 @@
 
 {% block content %}
 
-<h2>Quick Flight Logger</h2>
+<h2>Log Flight</h2>
 
-<form action="/quick_log" method="POST">
+<form method="POST">
 
-Aircraft
+Aircraft<br>
 
 <select name="aircraft_id">
+
 {% for a in aircraft %}
-<option value="{{ a.id }}">{{ a.name }}</option>
+<option value="{{a.id}}">{{a.name}}</option>
 {% endfor %}
+
 </select>
 
-Battery
+<br><br>
+
+Battery<br>
 
 <select name="battery_id">
+
 {% for b in batteries %}
-<option value="{{ b.id }}">{{ b.brand }} {{ b.capacity }}</option>
+<option value="{{b.id}}">
+{{ b.brand }} {{ b.capacity }}mAh
+</option>
 {% endfor %}
+
 </select>
 
-Minutes
+<br><br>
 
-<input type="number" name="minutes" required>
+Duration (minutes)<br>
+
+<input name="duration">
+
+<br><br>
 
 <button type="submit">Log Flight</button>
 

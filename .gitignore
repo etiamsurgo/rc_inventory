@@ -1,11 +1,6 @@
-﻿venv/
-instance/
-static/uploads/
-*.pyc
+venv/
 __pycache__/
+*.pyc
+instance/
+inventory.db
 .env
-.vscode/
-*.sqlite3
-coverage/
-.pytest_cache/
-uploads/

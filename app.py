@@ -1,327 +1,292 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-import csv
-import io
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///inventory.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///inventory.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-# =======================
+
+# -----------------------
 # MODELS
-# =======================
+# -----------------------
 
 class Aircraft(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
-    brand = db.Column(db.String(100))
-    category = db.Column(db.String(100))
-    notes = db.Column(db.String(300))
-    total_minutes = db.Column(db.Integer, default=0)
-
-    maint_logs = db.relationship('MaintenanceLog', backref='aircraft', cascade="all, delete")
-    flights = db.relationship('FlightLog', backref='aircraft', cascade="all, delete")
-
-    def formatted_time(self):
-        hours = self.total_minutes // 60
-        minutes = self.total_minutes % 60
-        return f"{hours}h {minutes}m"
-
-
-class MaintenanceLog(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    aircraft_id = db.Column(db.Integer, db.ForeignKey('aircraft.id'))
-    description = db.Column(db.String(300))
-    date = db.Column(db.DateTime, default=datetime.utcnow)
+    type = db.Column(db.String(100))
+    default_battery_id = db.Column(db.Integer, db.ForeignKey("battery.id"), nullable=True)
 
 
 class Battery(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     brand = db.Column(db.String(100))
-    capacity = db.Column(db.String(100))
-    type = db.Column(db.String(50))
-    cell_count = db.Column(db.Integer)
+    capacity = db.Column(db.Integer)
+    cells = db.Column(db.Integer)
     cycles = db.Column(db.Integer, default=0)
-    notes = db.Column(db.String(300))
-
-    flights = db.relationship('FlightLog', backref='battery', cascade="all, delete")
-
-    def health(self):
-        if self.cycles < 100:
-            return "Excellent"
-        elif self.cycles < 200:
-            return "Good"
-        elif self.cycles < 300:
-            return "Aging"
-        else:
-            return "Replace Soon"
 
 
-class FlightLog(db.Model):
+class Flight(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    aircraft_id = db.Column(db.Integer, db.ForeignKey('aircraft.id'))
-    battery_id = db.Column(db.Integer, db.ForeignKey('battery.id'))
-    duration = db.Column(db.Integer)  # minutes
+    aircraft_id = db.Column(db.Integer, db.ForeignKey("aircraft.id"))
+    battery_id = db.Column(db.Integer, db.ForeignKey("battery.id"))
+    duration_minutes = db.Column(db.Integer)
     date = db.Column(db.DateTime, default=datetime.utcnow)
 
-
-class Owner(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    ama_number = db.Column(db.String(50))
-    faa_number = db.Column(db.String(50))
-    ama_expiration = db.Column(db.String(20))
-    faa_expiration = db.Column(db.String(20))
+    aircraft = db.relationship("Aircraft")
+    battery = db.relationship("Battery")
 
 
-# =======================
-# DASHBOARD
-# =======================
+# -----------------------
+# HELPERS
+# -----------------------
 
-@app.route('/')
-def dashboard():
+def format_hours(minutes):
 
-    aircraft_count = Aircraft.query.count()
-    battery_count = Battery.query.count()
-    flight_count = FlightLog.query.count()
+    hours = minutes // 60
+    mins = minutes % 60
 
-    total_minutes = db.session.query(db.func.sum(Aircraft.total_minutes)).scalar() or 0
-    hours = total_minutes // 60
-    minutes = total_minutes % 60
+    return f"{hours}h {mins}m"
 
-    owner = Owner.query.first()
+
+app.jinja_env.globals.update(format_hours=format_hours)
+
+
+# -----------------------
+# HOME
+# -----------------------
+
+@app.route("/")
+def index():
+
+    aircraft = Aircraft.query.all()
+    batteries = Battery.query.all()
+
+    flights = Flight.query.order_by(Flight.date.desc()).limit(10).all()
+
+    aircraft_count = len(aircraft)
+    battery_count = len(batteries)
+    flight_count = Flight.query.count()
+
+    total_minutes = sum(f.duration_minutes for f in Flight.query.all())
+
+    # aircraft totals
+    for a in aircraft:
+        minutes = sum(
+            f.duration_minutes for f in Flight.query.filter_by(aircraft_id=a.id).all()
+        )
+        a.total_minutes = minutes
+
+    # battery warnings
+    for b in batteries:
+        if b.cycles >= 200:
+            b.warning = "⚠ Replace Soon"
+        elif b.cycles >= 150:
+            b.warning = "⚠ Aging"
+        else:
+            b.warning = ""
 
     return render_template(
-        "home.html",
+        "index.html",
+        aircraft=aircraft,
+        batteries=batteries,
+        flights=flights,
         aircraft_count=aircraft_count,
         battery_count=battery_count,
         flight_count=flight_count,
-        total_time=f"{hours}h {minutes}m",
-        owner=owner
+        total_minutes=total_minutes,
     )
 
 
-# =======================
-# AIRCRAFT
-# =======================
+# -----------------------
+# ADD AIRCRAFT
+# -----------------------
 
-@app.route('/aircraft')
-def aircraft():
-
-    aircraft = Aircraft.query.order_by(Aircraft.name.asc()).all()
-    batteries = Battery.query.all()
-
-    return render_template("aircraft.html", aircraft=aircraft, batteries=batteries)
-
-
-@app.route('/add_aircraft', methods=['POST'])
+@app.route("/add_aircraft", methods=["GET", "POST"])
 def add_aircraft():
 
-    new_aircraft = Aircraft(
-        name=request.form['name'],
-        brand=request.form['brand'],
-        category=request.form['category'],
-        notes=request.form['notes']
-    )
+    batteries = Battery.query.all()
 
-    db.session.add(new_aircraft)
-    db.session.commit()
+    if request.method == "POST":
 
-    return redirect(url_for('aircraft'))
+        name = request.form["name"]
+        type = request.form["type"]
+        default_battery_id = request.form.get("default_battery")
 
+        aircraft = Aircraft(
+            name=name,
+            type=type,
+            default_battery_id=default_battery_id if default_battery_id else None,
+        )
 
-@app.route('/delete_aircraft/<int:id>')
-def delete_aircraft(id):
+        db.session.add(aircraft)
+        db.session.commit()
 
-    aircraft = Aircraft.query.get_or_404(id)
-    db.session.delete(aircraft)
-    db.session.commit()
+        return redirect(url_for("index"))
 
-    return redirect(url_for('aircraft'))
-
-
-# =======================
-# FLIGHT LOGGING
-# =======================
-
-@app.route('/add_flight/<int:aircraft_id>', methods=['POST'])
-def add_flight(aircraft_id):
-
-    minutes = int(request.form['minutes'])
-    battery_id = int(request.form['battery_id'])
-
-    flight = FlightLog(
-        aircraft_id=aircraft_id,
-        battery_id=battery_id,
-        duration=minutes
-    )
-
-    db.session.add(flight)
-
-    aircraft = Aircraft.query.get(aircraft_id)
-    aircraft.total_minutes += minutes
-
-    battery = Battery.query.get(battery_id)
-    battery.cycles += 1
-
-    db.session.commit()
-
-    return redirect(url_for('aircraft'))
+    return render_template("add_aircraft.html", batteries=batteries)
 
 
-# =======================
-# QUICK FLIGHT LOGGER
-# =======================
+# -----------------------
+# ADD BATTERY
+# -----------------------
 
-@app.route('/log_flight')
+@app.route("/add_battery", methods=["GET", "POST"])
+def add_battery():
+
+    if request.method == "POST":
+
+        brand = request.form["brand"]
+        capacity = request.form["capacity"]
+        cells = request.form["cells"]
+
+        battery = Battery(
+            brand=brand,
+            capacity=int(capacity),
+            cells=int(cells),
+            cycles=0,
+        )
+
+        db.session.add(battery)
+        db.session.commit()
+
+        return redirect(url_for("index"))
+
+    return render_template("add_battery.html")
+
+
+# -----------------------
+# LOG FLIGHT
+# -----------------------
+
+@app.route("/log_flight", methods=["GET", "POST"])
 def log_flight():
 
     aircraft = Aircraft.query.all()
     batteries = Battery.query.all()
 
-    return render_template("log_flight.html", aircraft=aircraft, batteries=batteries)
+    if request.method == "POST":
+
+        aircraft_id = request.form["aircraft_id"]
+        battery_id = request.form["battery_id"]
+        duration = request.form["duration"]
+
+        flight = Flight(
+            aircraft_id=int(aircraft_id),
+            battery_id=int(battery_id),
+            duration_minutes=int(duration),
+        )
+
+        db.session.add(flight)
+
+        battery = Battery.query.get(battery_id)
+        battery.cycles += 1
+
+        db.session.commit()
+
+        return redirect(url_for("index"))
+
+    return render_template(
+        "log_flight.html",
+        aircraft=aircraft,
+        batteries=batteries,
+    )
 
 
-@app.route('/quick_log', methods=['POST'])
-def quick_log():
+# -----------------------
+# QUICK FLIGHT
+# -----------------------
 
-    aircraft_id = int(request.form['aircraft_id'])
-    battery_id = int(request.form['battery_id'])
-    minutes = int(request.form['minutes'])
+@app.route("/quick_flight/<int:aircraft_id>/<int:duration>")
+def quick_flight(aircraft_id, duration):
 
-    flight = FlightLog(
+    aircraft = Aircraft.query.get_or_404(aircraft_id)
+
+    battery_id = aircraft.default_battery_id
+
+    if not battery_id:
+        return redirect(url_for("log_flight"))
+
+    flight = Flight(
         aircraft_id=aircraft_id,
         battery_id=battery_id,
-        duration=minutes
+        duration_minutes=duration,
     )
 
     db.session.add(flight)
-
-    aircraft = Aircraft.query.get(aircraft_id)
-    aircraft.total_minutes += minutes
 
     battery = Battery.query.get(battery_id)
     battery.cycles += 1
 
     db.session.commit()
 
-    return redirect(url_for('dashboard'))
+    return redirect(url_for("index"))
 
 
-# =======================
-# FLIGHT HISTORY
-# =======================
+# -----------------------
+# AIRCRAFT HISTORY
+# -----------------------
 
-@app.route('/flight_history/<int:aircraft_id>')
-def flight_history(aircraft_id):
+@app.route("/aircraft/<int:aircraft_id>")
+def aircraft_history(aircraft_id):
 
     aircraft = Aircraft.query.get_or_404(aircraft_id)
 
-    flights = FlightLog.query.filter_by(
-        aircraft_id=aircraft_id
-    ).order_by(
-        FlightLog.date.desc()
-    ).all()
+    flights = Flight.query.filter_by(aircraft_id=aircraft_id).order_by(
+        Flight.date.desc()
+    )
+
+    total_minutes = sum(f.duration_minutes for f in flights)
 
     return render_template(
-        "flight_history.html",
+        "aircraft_history.html",
         aircraft=aircraft,
-        flights=flights
+        flights=flights,
+        total_minutes=total_minutes,
     )
 
 
-# =======================
-# BATTERIES
-# =======================
+# -----------------------
+# ANALYTICS
+# -----------------------
 
-@app.route('/batteries')
-def batteries():
+@app.route("/analytics")
+def analytics():
 
-    batteries = Battery.query.order_by(Battery.cycles.desc()).all()
+    batteries = Battery.query.all()
+    aircraft = Aircraft.query.all()
 
-    return render_template("batteries.html", batteries=batteries)
+    battery_labels = [f"{b.brand} {b.capacity}" for b in batteries]
+    battery_cycles = [b.cycles for b in batteries]
 
+    aircraft_labels = []
+    aircraft_minutes = []
 
-@app.route('/add_battery', methods=['POST'])
-def add_battery():
+    for a in aircraft:
 
-    battery = Battery(
-        brand=request.form['brand'],
-        capacity=request.form['capacity'],
-        type=request.form['type'],
-        cell_count=request.form['cell_count'],
-        notes=request.form['notes']
-    )
+        minutes = sum(
+            f.duration_minutes for f in Flight.query.filter_by(aircraft_id=a.id).all()
+        )
 
-    db.session.add(battery)
-    db.session.commit()
+        aircraft_labels.append(a.name)
+        aircraft_minutes.append(minutes)
 
-    return redirect(url_for('batteries'))
-
-
-@app.route('/delete_battery/<int:id>')
-def delete_battery(id):
-
-    battery = Battery.query.get_or_404(id)
-    db.session.delete(battery)
-    db.session.commit()
-
-    return redirect(url_for('batteries'))
-
-
-# =======================
-# CSV EXPORT
-# =======================
-
-@app.route('/export_flights')
-def export_flights():
-
-    flights = FlightLog.query.all()
-
-    output = io.StringIO()
-    writer = csv.writer(output)
-
-    writer.writerow(["Aircraft", "Battery", "Minutes", "Date"])
-
-    for f in flights:
-
-        writer.writerow([
-            f.aircraft.name,
-            f.battery.brand,
-            f.duration,
-            f.date
-        ])
-
-    output.seek(0)
-
-    return send_file(
-        io.BytesIO(output.getvalue().encode()),
-        mimetype="text/csv",
-        as_attachment=True,
-        download_name="flight_logs.csv"
+    return render_template(
+        "analytics.html",
+        battery_labels=battery_labels,
+        battery_cycles=battery_cycles,
+        aircraft_labels=aircraft_labels,
+        aircraft_minutes=aircraft_minutes,
     )
 
 
-# =======================
-# OWNER + ADMIN
-# =======================
+# -----------------------
 
-@app.route("/owner")
-def owner():
-    return render_template("owner.html")
+if __name__ == "__main__":
 
-
-@app.route("/admin")
-def admin():
-    return render_template("admin.html")
-
-
-# =======================
-
-if __name__ == '__main__':
     with app.app_context():
         db.create_all()
 
