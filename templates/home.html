@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Dashboard</h2>
+
+<div class="grid">
+
+<!-- Pilot Info -->
+<div class="card">
+
+<h3>Pilot Info</h3>
+
+{% if pilot and pilot.name %}
+
+<p><b>Name:</b> {{ pilot.name }}</p>
+
+<p><b>AMA #:</b> {{ pilot.ama_number }}</p>
+
+{% if pilot.ama_expiration %}
+<p>
+<b>AMA Exp:</b> {{ pilot.ama_expiration }}
+</p>
+{% endif %}
+
+<p><b>FAA #:</b> {{ pilot.faa_number }}</p>
+
+{% if pilot.faa_expiration %}
+<p>
+<b>FAA Exp:</b> {{ pilot.faa_expiration }}
+</p>
+{% endif %}
+
+{% else %}
+
+<p>No profile set.</p>
+<a class="btn" href="/profile">Set Profile</a>
+
+{% endif %}
+
+</div>
+
+
+<!-- Fleet Summary -->
+<div class="card">
+
+<h3>Fleet Summary</h3>
+
+<p>Aircraft: {{ aircraft_count }}</p>
+<p>Items: {{ item_count }}</p>
+<p>Total Flights: {{ flight_count }}</p>
+
+</div>
+
+
+<!-- Battery Warnings -->
+<div class="card">
+
+<h3>Battery Alerts</h3>
+
+<ul>
+
+{% for b in batteries %}
+
+{% if b.cycles >= 200 %}
+<li class="warning">{{ b.name }} - {{ b.cycles }} cycles (Replace)</li>
+
+{% elif b.cycles >= 150 %}
+<li>{{ b.name }} - {{ b.cycles }} cycles (Aging)</li>
+
+{% endif %}
+
+{% endfor %}
+
+</ul>
+
+</div>
+
+</div>
+
+
+<!-- Quick Actions -->
+<h2>Quick Actions</h2>
+
+<div class="card">
+
+<a class="btn" href="/log_flight">Log Flight</a>
+<a class="btn" href="/add_aircraft">Add Aircraft</a>
+<a class="btn" href="/add_item">Add Item</a>
+
+</div>
+
+{% endblock %}

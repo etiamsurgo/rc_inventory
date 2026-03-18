@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Aircraft</h2>
+
+<a class="btn" href="/add_aircraft">+ Add Aircraft</a>
+
+<div class="grid">
+
+{% for a in aircraft %}
+
+<div class="card">
+
+<h3>{{ a.name }}</h3>
+
+<p>Type: {{ a.type }}</p>
+
+<p>{{ a.notes }}</p>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

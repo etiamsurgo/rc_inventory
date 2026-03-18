@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Battery Cycles</h2>
+
+<canvas id="batteryChart"></canvas>
+
+<h2>Aircraft Flight Time</h2>
+
+<canvas id="flightChart"></canvas>
+
+
+<script id="chart-data" type="application/json">
+
+{
+"battery_labels": {{ battery_labels | tojson }},
+"battery_cycles": {{ battery_cycles | tojson }},
+"aircraft_labels": {{ aircraft_labels | tojson }},
+"aircraft_minutes": {{ aircraft_minutes | tojson }}
+}
+
+</script>
+
+
+<script>
+
+const data = JSON.parse(
+document.getElementById("chart-data").textContent
+)
+
+new Chart(document.getElementById("batteryChart"), {
+
+type: "bar",
+
+data: {
+
+labels: data.battery_labels,
+
+datasets: [
+
+{
+label: "Battery Cycles",
+data: data.battery_cycles
+}
+
+]
+
+}
+
+})
+
+
+new Chart(document.getElementById("flightChart"), {
+
+type: "bar",
+
+data: {
+
+labels: data.aircraft_labels,
+
+datasets: [
+
+{
+label: "Flight Minutes",
+data: data.aircraft_minutes
+}
+
+]
+
+}
+
+})
+
+</script>
+
+{% endblock %}

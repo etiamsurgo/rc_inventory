@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Pilot Profile</h2>
+
+<form method="POST" class="card">
+
+Name
+<input name="name" value="{{ pilot.name if pilot }}">
+
+AMA Number
+<input name="ama" value="{{ pilot.ama_number if pilot }}">
+
+AMA Expiration
+<input type="date" name="ama_exp" value="{{ pilot.ama_expiration if pilot }}">
+
+FAA Number
+<input name="faa" value="{{ pilot.faa_number if pilot }}">
+
+FAA Expiration
+<input type="date" name="faa_exp" value="{{ pilot.faa_expiration if pilot }}">
+
+<button class="btn">Save</button>
+
+</form>
+
+{% endblock %}
