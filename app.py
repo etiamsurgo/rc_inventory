@@ -130,7 +130,16 @@ def log_flight():
 
     db = get_db()
 
-    aircraft = db.execute("SELECT * FROM aircraft").fetchall()
+    # 🔥 Most-used aircraft first
+    aircraft = db.execute("""
+        SELECT a.*,
+        COALESCE(SUM(f.minutes),0) as total_minutes
+        FROM aircraft a
+        LEFT JOIN flights f ON a.id = f.aircraft_id
+        GROUP BY a.id
+        ORDER BY total_minutes DESC
+    """).fetchall()
+
     batteries = db.execute("SELECT * FROM batteries").fetchall()
 
     # QUICK LOG

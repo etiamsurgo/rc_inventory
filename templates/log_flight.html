@@ -4,28 +4,33 @@
 
 <h2>Log Flight</h2>
 
-<!-- QUICK LOG -->
+<!-- 🔥 QUICK LOG (BIG BUTTONS) -->
 <div class="card">
 
 <h3>Quick Log</h3>
 
 {% for a in aircraft %}
 
-<div class="quick-row">
+<div class="quick-row {% if loop.index <= 2 %}top-aircraft{% endif %}">
 
-<div class="quick-title">{{ a.name }}</div>
+<div class="quick-title">
+{{ a.name }}
+{% if loop.index <= 2 %}
+<span class="badge">Most Used</span>
+{% endif %}
+</div>
 
 {% if a.default_battery_id %}
 
 <div class="quick-buttons">
-<a class="btn" href="/log_flight?quick=5&aircraft={{ a.id }}">5</a>
-<a class="btn" href="/log_flight?quick=7&aircraft={{ a.id }}">7</a>
-<a class="btn" href="/log_flight?quick=10&aircraft={{ a.id }}">10</a>
+<a class="quick-btn" href="/log_flight?quick=5&aircraft={{ a.id }}">5 min</a>
+<a class="quick-btn" href="/log_flight?quick=7&aircraft={{ a.id }}">7 min</a>
+<a class="quick-btn" href="/log_flight?quick=10&aircraft={{ a.id }}">10 min</a>
 </div>
 
 {% else %}
 
-<div class="warning">No default battery</div>
+<div class="warning">No default battery set</div>
 
 {% endif %}
 
@@ -36,7 +41,7 @@
 </div>
 
 
-<!-- MANUAL LOG -->
+<!-- 🔧 MANUAL LOG -->
 <div class="card">
 
 <h3>Manual Log</h3>
@@ -44,16 +49,20 @@
 <form method="POST">
 
 <label>Aircraft</label>
-<select name="aircraft" required>
+<select name="aircraft" id="aircraft-select" required>
 {% for a in aircraft %}
-<option value="{{ a.id }}">{{ a.name }}</option>
+<option value="{{ a.id }}" data-battery="{{ a.default_battery_id }}">
+{{ a.name }}
+</option>
 {% endfor %}
 </select>
 
 <label>Battery</label>
-<select name="battery" required>
+<select name="battery" id="battery-select" required>
 {% for b in batteries %}
-<option value="{{ b.id }}">{{ b.name }} ({{ b.cycles }})</option>
+<option value="{{ b.id }}">
+{{ b.name }} ({{ b.cycles }} cycles)
+</option>
 {% endfor %}
 </select>
 
@@ -67,5 +76,25 @@
 </form>
 
 </div>
+
+<!-- 🔥 AUTO SELECT DEFAULT BATTERY -->
+<script>
+document.getElementById("aircraft-select").addEventListener("change", function() {
+
+    let selected = this.options[this.selectedIndex];
+    let batteryId = selected.getAttribute("data-battery");
+
+    let batterySelect = document.getElementById("battery-select");
+
+    if (batteryId) {
+        for (let i = 0; i < batterySelect.options.length; i++) {
+            if (batterySelect.options[i].value == batteryId) {
+                batterySelect.selectedIndex = i;
+                break;
+            }
+        }
+    }
+});
+</script>
 
 {% endblock %}

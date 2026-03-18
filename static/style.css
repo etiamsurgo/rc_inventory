@@ -1,7 +1,9 @@
+/* ===== GLOBAL ===== */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     background: #f4f6f9;
+    color: #111827;
 }
 
 h1 {
@@ -9,8 +11,19 @@ h1 {
     padding: 15px;
     background: #1f2937;
     color: white;
+    font-size: 20px;
 }
 
+h2 {
+    margin-bottom: 10px;
+}
+
+h3 {
+    margin-top: 0;
+}
+
+
+/* ===== NAV ===== */
 nav {
     background: #111827;
     padding: 10px;
@@ -20,22 +33,17 @@ nav a {
     color: #d1d5db;
     margin-right: 15px;
     text-decoration: none;
+    font-size: 14px;
 }
 
 nav a:hover {
     color: white;
 }
 
-.container {
-    padding: 20px;
-}
 
-.card {
-    background: white;
+/* ===== LAYOUT ===== */
+.container {
     padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 .grid {
@@ -44,46 +52,136 @@ nav a:hover {
     gap: 15px;
 }
 
+
+/* ===== CARD ===== */
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+
+/* ===== BUTTONS ===== */
 .btn {
     display: inline-block;
-    padding: 6px 12px;
+    padding: 8px 14px;
     background: #2563eb;
     color: white;
-    border-radius: 6px;
+    border-radius: 8px;
     text-decoration: none;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
 }
 
 .btn:hover {
     background: #1d4ed8;
 }
 
-input, select, textarea {
-    width: 100%;
-    padding: 6px;
-    margin-bottom: 10px;
-}
 
-.warning {
-    color: red;
+/* 🔥 BIG MOBILE QUICK BUTTONS */
+.quick-btn {
+    display: inline-block;
+    padding: 14px 18px;
+    margin: 5px 5px 5px 0;
+    font-size: 16px;
     font-weight: bold;
+    border-radius: 10px;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    min-width: 70px;
 }
 
+.quick-btn:hover {
+    background: #1d4ed8;
+}
+
+
+/* ===== FORM ===== */
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+}
+
+
+/* ===== QUICK LOG SECTION ===== */
 .quick-row {
-    margin-bottom: 15px;
-    padding: 10px;
-    border-bottom: 1px solid #333;
+    padding: 12px 0;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .quick-title {
     font-weight: bold;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
+    font-size: 15px;
 }
 
-.quick-buttons .btn {
-    margin-right: 5px;
-    padding: 8px 12px;
+
+/* 🔥 MOST USED AIRCRAFT HIGHLIGHT */
+.top-aircraft {
+    background: rgba(37, 99, 235, 0.08);
+    padding: 10px;
+    border-radius: 10px;
 }
 
+
+/* BADGE */
+.badge {
+    background: #f59e0b;
+    color: #111;
+    padding: 2px 6px;
+    font-size: 11px;
+    border-radius: 4px;
+    margin-left: 6px;
+}
+
+
+/* ===== WARNINGS ===== */
 .warning {
-    color: red;
+    color: #dc2626;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+
+/* ===== MOBILE IMPROVEMENTS ===== */
+@media (max-width: 600px) {
+
+    h1 {
+        font-size: 18px;
+        text-align: center;
+    }
+
+    nav {
+        text-align: center;
+    }
+
+    nav a {
+        display: inline-block;
+        margin: 5px 8px;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    .card {
+        padding: 12px;
+    }
+
+    .quick-btn {
+        width: 30%;
+        padding: 16px 0;
+        font-size: 16px;
+    }
 }
