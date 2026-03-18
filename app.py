@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect
 from database import get_db, init_db
-import datetime
 
 app = Flask(__name__)
 
@@ -32,7 +31,7 @@ def home():
     )
 
 
-@app.route("/profile", methods=["GET","POST"])
+@app.route("/profile", methods=["GET", "POST"])
 def profile():
 
     db = get_db()
@@ -53,7 +52,6 @@ def profile():
         )
 
         db.commit()
-
         return redirect("/")
 
     pilot = db.execute("SELECT * FROM pilot_profile LIMIT 1").fetchone()
@@ -70,7 +68,7 @@ def aircraft():
     return render_template("aircraft.html", aircraft=aircraft)
 
 
-@app.route("/add_aircraft", methods=["GET","POST"])
+@app.route("/add_aircraft", methods=["GET", "POST"])
 def add_aircraft():
 
     db = get_db()
@@ -87,7 +85,6 @@ def add_aircraft():
         )
 
         db.commit()
-
         return redirect("/aircraft")
 
     return render_template("add_aircraft.html")
@@ -97,13 +94,12 @@ def add_aircraft():
 def items():
 
     db = get_db()
-
     items = db.execute("SELECT * FROM items").fetchall()
 
     return render_template("items.html", items=items)
 
 
-@app.route("/add_item", methods=["GET","POST"])
+@app.route("/add_item", methods=["GET", "POST"])
 def add_item():
 
     db = get_db()
@@ -123,13 +119,13 @@ def add_item():
         )
 
         db.commit()
-
         return redirect("/items")
 
     return render_template("add_item.html")
 
 
-@app.route("/log_flight", methods=["GET","POST"])
+# ✅ CLEAN LOG FLIGHT ROUTE
+@app.route("/log_flight", methods=["GET", "POST"])
 def log_flight():
 
     db = get_db()
@@ -137,20 +133,61 @@ def log_flight():
     aircraft = db.execute("SELECT * FROM aircraft").fetchall()
     batteries = db.execute("SELECT * FROM batteries").fetchall()
 
+    # QUICK LOG
+    quick_minutes = request.args.get("quick")
+    aircraft_id = request.args.get("aircraft")
+
+    if quick_minutes and aircraft_id:
+
+        a = db.execute(
+            "SELECT * FROM aircraft WHERE id=?",
+            (aircraft_id,)
+        ).fetchone()
+
+        if a and a["default_battery_id"]:
+
+            b = db.execute(
+                "SELECT * FROM batteries WHERE id=?",
+                (a["default_battery_id"],)
+            ).fetchone()
+
+            if b:
+                minutes = int(quick_minutes)
+
+                db.execute(
+                    "INSERT INTO flights (aircraft_id, battery_id, minutes) VALUES (?,?,?)",
+                    (a["id"], b["id"], minutes)
+                )
+
+                db.execute(
+                    "UPDATE aircraft SET total_minutes = total_minutes + ? WHERE id=?",
+                    (minutes, a["id"])
+                )
+
+                db.execute(
+                    "UPDATE batteries SET cycles = cycles + 1 WHERE id=?",
+                    (b["id"],)
+                )
+
+                db.commit()
+
+                return redirect("/log_flight")
+
+    # NORMAL FORM
     if request.method == "POST":
 
         aircraft_id = request.form["aircraft"]
         battery_id = request.form["battery"]
-        minutes = request.form["minutes"]
+        minutes = int(request.form["minutes"])
 
         db.execute(
-            "INSERT INTO flights (aircraft_id,battery_id,minutes,date) VALUES (?,?,?,?)",
-            (
-                aircraft_id,
-                battery_id,
-                minutes,
-                datetime.date.today()
-            )
+            "INSERT INTO flights (aircraft_id, battery_id, minutes) VALUES (?,?,?)",
+            (aircraft_id, battery_id, minutes)
+        )
+
+        db.execute(
+            "UPDATE aircraft SET total_minutes = total_minutes + ? WHERE id=?",
+            (minutes, aircraft_id)
         )
 
         db.execute(
@@ -160,7 +197,7 @@ def log_flight():
 
         db.commit()
 
-        return redirect("/")
+        return redirect("/log_flight")
 
     return render_template(
         "log_flight.html",
@@ -177,11 +214,11 @@ def analytics():
     batteries = db.execute("SELECT name,cycles FROM batteries").fetchall()
 
     aircraft = db.execute("""
-    SELECT aircraft.name,
-    SUM(flights.minutes) as minutes
-    FROM flights
-    JOIN aircraft ON flights.aircraft_id=aircraft.id
-    GROUP BY aircraft.id
+        SELECT aircraft.name,
+        SUM(flights.minutes) as minutes
+        FROM flights
+        JOIN aircraft ON flights.aircraft_id=aircraft.id
+        GROUP BY aircraft.id
     """).fetchall()
 
     return render_template(

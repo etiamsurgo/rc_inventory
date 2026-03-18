@@ -4,33 +4,68 @@
 
 <h2>Log Flight</h2>
 
-<form method="POST" class="card">
+<!-- QUICK LOG -->
+<div class="card">
 
-Aircraft
+<h3>Quick Log</h3>
+
+{% for a in aircraft %}
+
+<div class="quick-row">
+
+<div class="quick-title">{{ a.name }}</div>
+
+{% if a.default_battery_id %}
+
+<div class="quick-buttons">
+<a class="btn" href="/log_flight?quick=5&aircraft={{ a.id }}">5</a>
+<a class="btn" href="/log_flight?quick=7&aircraft={{ a.id }}">7</a>
+<a class="btn" href="/log_flight?quick=10&aircraft={{ a.id }}">10</a>
+</div>
+
+{% else %}
+
+<div class="warning">No default battery</div>
+
+{% endif %}
+
+</div>
+
+{% endfor %}
+
+</div>
+
+
+<!-- MANUAL LOG -->
+<div class="card">
+
+<h3>Manual Log</h3>
+
+<form method="POST">
+
+<label>Aircraft</label>
 <select name="aircraft" required>
-
 {% for a in aircraft %}
 <option value="{{ a.id }}">{{ a.name }}</option>
 {% endfor %}
-
 </select>
 
-Battery
+<label>Battery</label>
 <select name="battery" required>
-
 {% for b in batteries %}
-<option value="{{ b.id }}">{{ b.name }} ({{ b.cycles }} cycles)</option>
+<option value="{{ b.id }}">{{ b.name }} ({{ b.cycles }})</option>
 {% endfor %}
-
 </select>
 
-Flight Time (minutes)
+<label>Minutes</label>
 <input type="number" name="minutes" required>
 
-<br>
+<br><br>
 
 <button class="btn" type="submit">Log Flight</button>
 
 </form>
+
+</div>
 
 {% endblock %}
