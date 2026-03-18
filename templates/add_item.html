@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Add RC Item</h2>
+
+<form method="post">
+
+Name<br>
+<input name="name"><br>
+
+Category<br>
+<select name="category">
+
+<option>Battery</option>
+<option>Motor</option>
+<option>ESC</option>
+<option>Servo</option>
+<option>Receiver</option>
+<option>Transmitter</option>
+<option>Remote ID</option>
+<option>Charger</option>
+<option>Propeller</option>
+<option>FPV</option>
+<option>Tool</option>
+<option>Other</option>
+
+</select>
+
+<br><br>
+
+Brand<br>
+<input name="brand"><br>
+
+Model<br>
+<input name="model"><br>
+
+Serial<br>
+<input name="serial"><br>
+
+Notes<br>
+<textarea name="notes"></textarea>
+
+<br><br>
+
+<button type="submit">Add Item</button>
+
+</form>
+
+{% endblock %}

@@ -10,10 +10,24 @@
 
 <canvas id="flightChart"></canvas>
 
+
+<script id="chart-data" type="application/json">
+
+{
+"battery_labels": {{ battery_labels | tojson }},
+"battery_cycles": {{ battery_cycles | tojson }},
+"aircraft_labels": {{ aircraft_labels | tojson }},
+"aircraft_minutes": {{ aircraft_minutes | tojson }}
+}
+
+</script>
+
+
 <script>
 
-const batteryLabels = {{ battery_labels | tojson }};
-const batteryData = {{ battery_cycles | tojson }};
+const data = JSON.parse(
+document.getElementById("chart-data").textContent
+)
 
 new Chart(document.getElementById("batteryChart"), {
 
@@ -21,22 +35,21 @@ type: "bar",
 
 data: {
 
-labels: batteryLabels,
+labels: data.battery_labels,
 
-datasets: [{
+datasets: [
 
+{
 label: "Battery Cycles",
+data: data.battery_cycles
+}
 
-data: batteryData
-
-}]
+]
 
 }
 
-});
+})
 
-const aircraftLabels = {{ aircraft_labels | tojson }};
-const aircraftMinutes = {{ aircraft_minutes | tojson }};
 
 new Chart(document.getElementById("flightChart"), {
 
@@ -44,19 +57,20 @@ type: "bar",
 
 data: {
 
-labels: aircraftLabels,
+labels: data.aircraft_labels,
 
-datasets: [{
+datasets: [
 
+{
 label: "Flight Minutes",
+data: data.aircraft_minutes
+}
 
-data: aircraftMinutes
-
-}]
+]
 
 }
 
-});
+})
 
 </script>
 
