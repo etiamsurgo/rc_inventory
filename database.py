@@ -72,4 +72,12 @@ item_id INTEGER
 
 """)
 
+    # ✅ SAFE MIGRATION: add default_battery_id if missing
+    try:
+        db.execute("ALTER TABLE aircraft ADD COLUMN default_battery_id INTEGER")
+        print("✅ Added default_battery_id column")
+    except sqlite3.OperationalError:
+        # Column already exists
+        pass
+
     db.commit()

@@ -59,35 +59,81 @@ def profile():
     return render_template("profile.html", pilot=pilot)
 
 
+# ✅ AIRCRAFT LIST (NOW SHOWS DEFAULT BATTERY)
 @app.route("/aircraft")
 def aircraft():
 
     db = get_db()
-    aircraft = db.execute("SELECT * FROM aircraft").fetchall()
+
+    aircraft = db.execute("""
+        SELECT a.*, b.name as battery_name
+        FROM aircraft a
+        LEFT JOIN batteries b ON a.default_battery_id = b.id
+    """).fetchall()
 
     return render_template("aircraft.html", aircraft=aircraft)
 
 
+# ✅ ADD AIRCRAFT (WITH DEFAULT BATTERY)
 @app.route("/add_aircraft", methods=["GET", "POST"])
 def add_aircraft():
 
     db = get_db()
+    batteries = db.execute("SELECT * FROM batteries").fetchall()
 
     if request.method == "POST":
 
+        default_battery = request.form.get("default_battery")
+
         db.execute(
-            "INSERT INTO aircraft (name,type,notes) VALUES (?,?,?)",
+            "INSERT INTO aircraft (name,type,notes,default_battery_id) VALUES (?,?,?,?)",
             (
                 request.form["name"],
                 request.form["type"],
-                request.form["notes"]
+                request.form["notes"],
+                default_battery if default_battery else None
             )
         )
 
         db.commit()
         return redirect("/aircraft")
 
-    return render_template("add_aircraft.html")
+    return render_template("add_aircraft.html", batteries=batteries)
+
+
+# ✅ EDIT AIRCRAFT
+@app.route("/edit_aircraft/<int:id>", methods=["GET", "POST"])
+def edit_aircraft(id):
+
+    db = get_db()
+
+    aircraft = db.execute("SELECT * FROM aircraft WHERE id=?", (id,)).fetchone()
+    batteries = db.execute("SELECT * FROM batteries").fetchall()
+
+    if request.method == "POST":
+
+        default_battery = request.form.get("default_battery")
+
+        db.execute("""
+            UPDATE aircraft
+            SET name=?, type=?, notes=?, default_battery_id=?
+            WHERE id=?
+        """, (
+            request.form["name"],
+            request.form["type"],
+            request.form["notes"],
+            default_battery if default_battery else None,
+            id
+        ))
+
+        db.commit()
+        return redirect("/aircraft")
+
+    return render_template(
+        "edit_aircraft.html",
+        aircraft=aircraft,
+        batteries=batteries
+    )
 
 
 @app.route("/items")
@@ -124,13 +170,12 @@ def add_item():
     return render_template("add_item.html")
 
 
-# ✅ CLEAN LOG FLIGHT ROUTE
+# ✅ LOG FLIGHT (UNCHANGED FUNCTIONALITY + SORT)
 @app.route("/log_flight", methods=["GET", "POST"])
 def log_flight():
 
     db = get_db()
 
-    # 🔥 Most-used aircraft first
     aircraft = db.execute("""
         SELECT a.*,
         COALESCE(SUM(f.minutes),0) as total_minutes
@@ -142,7 +187,6 @@ def log_flight():
 
     batteries = db.execute("SELECT * FROM batteries").fetchall()
 
-    # QUICK LOG
     quick_minutes = request.args.get("quick")
     aircraft_id = request.args.get("aircraft")
 
@@ -182,7 +226,6 @@ def log_flight():
 
                 return redirect("/log_flight")
 
-    # NORMAL FORM
     if request.method == "POST":
 
         aircraft_id = request.form["aircraft"]
