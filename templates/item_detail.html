@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<a class="btn" href="/items">← Back to Items</a>
+
+<div class="card">
+
+<h2>{{ item.name }}</h2>
+
+<p><strong>Category:</strong> {{ item.category }}</p>
+
+{% if item.brand %}
+<p><strong>Brand:</strong> {{ item.brand }}</p>
+{% endif %}
+
+{% if item.model %}
+<p><strong>Model:</strong> {{ item.model }}</p>
+{% endif %}
+
+{% if item.serial %}
+<p><strong>Serial:</strong> {{ item.serial }}</p>
+{% endif %}
+
+{% if item.notes %}
+<p><strong>Notes:</strong></p>
+<p>{{ item.notes }}</p>
+{% endif %}
+
+</div>
+
+{% endblock %}

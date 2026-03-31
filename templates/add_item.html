@@ -4,12 +4,20 @@
 
 <h2>Add RC Item</h2>
 
+<div class="form-container">
+
 <form method="post">
 
-Name<br>
-<input name="name"><br>
+<div class="form-grid">
 
-Category<br>
+<div>
+<label>Name</label>
+<input name="name">
+</div>
+
+<div>
+<label>Category</label>
+
 <select name="category">
 
 <option>Battery</option>
@@ -27,24 +35,36 @@ Category<br>
 
 </select>
 
-<br><br>
+</div>
 
-Brand<br>
-<input name="brand"><br>
+<div>
+<label>Brand</label>
+<input name="brand">
+</div>
 
-Model<br>
-<input name="model"><br>
+<div>
+<label>Model</label>
+<input name="model">
+</div>
 
-Serial<br>
-<input name="serial"><br>
+<div>
+<label>Serial</label>
+<input name="serial">
+</div>
 
-Notes<br>
+<div class="form-grid-full">
+<label>Notes</label>
 <textarea name="notes"></textarea>
+</div>
 
-<br><br>
+<div class="form-grid-full">
+<button class="btn" type="submit">Add Item</button>
+</div>
 
-<button type="submit">Add Item</button>
+</div>
 
 </form>
+
+</div>
 
 {% endblock %}

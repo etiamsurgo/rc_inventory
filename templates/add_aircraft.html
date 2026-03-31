@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Add Aircraft</h2>
+
+<div class="form-container">
+
+<form method="POST">
+
+<div class="form-grid">
+
+<div>
+<label>Nickname</label>
+<input type="text" name="name" required>
+</div>
+
+<div>
+<label>Type</label>
+<select name="type">
+<option value="">-- Select Type --</option>
+<option>STOL</option>
+<option>Trainer</option>
+<option>Sport</option>
+<option>Aerobatic</option>
+<option>Warbird</option>
+<option>Glider</option>
+<option>Jet</option>
+<option>Helicopter</option>
+<option>Multirotor</option>
+</select>
+</div>
+
+<div class="form-grid-full">
+<label>Default Battery</label>
+
+<select name="default_battery" id="default-battery">
+<option value="">-- None --</option>
+
+{% for b in batteries %}
+<option value="{{ b.id }}">{{ b.name }}</option>
+{% endfor %}
+
+</select>
+
+</div>
+
+<div class="form-grid-full">
+<label>Usable Batteries</label>
+
+<div class="battery-list">
+
+{% for b in batteries %}
+<label>
+<input type="checkbox" name="usable_batteries[]" value="{{ b.id }}">
+{{ b.name }}
+</label>
+{% endfor %}
+
+</div>
+
+</div>
+
+<div class="form-grid-full">
+<label>Notes</label>
+<textarea name="notes"></textarea>
+</div>
+
+<div class="form-grid-full">
+<button class="btn" type="submit">Save Aircraft</button>
+</div>
+
+</div>
+
+</form>
+
+</div>
+
+<script>
+
+const defaultSelect = document.getElementById("default-battery")
+
+defaultSelect.addEventListener("change", function(){
+
+    const id = this.value
+
+    if(!id) return
+
+    const checkbox = document.querySelector(
+        "input[name='usable_batteries[]'][value='"+id+"']"
+    )
+
+    if(checkbox){
+        checkbox.checked = true
+    }
+
+})
+
+</script>
+
+{% endblock %}

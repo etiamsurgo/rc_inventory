@@ -4,25 +4,29 @@
 
 <h2>Pilot Profile</h2>
 
-<form method="POST" class="card">
+<div class="form-container">
 
-Name
-<input name="name" value="{{ pilot.name if pilot }}">
+<form method="POST">
 
-AMA Number
-<input name="ama" value="{{ pilot.ama_number if pilot }}">
+<label>Name</label>
+<input type="text" name="name" value="{{ pilot.name or '' }}">
 
-AMA Expiration
-<input type="date" name="ama_exp" value="{{ pilot.ama_expiration if pilot }}">
+<label>AMA Number</label>
+<input type="text" name="ama_number" value="{{ pilot.ama_number or '' }}">
 
-FAA Number
-<input name="faa" value="{{ pilot.faa_number if pilot }}">
+<label>AMA Expiration</label>
+<input type="date" name="ama_expiration" value="{{ pilot.ama_expiration or '' }}">
 
-FAA Expiration
-<input type="date" name="faa_exp" value="{{ pilot.faa_expiration if pilot }}">
+<label>FAA Number</label>
+<input type="text" name="faa_number" value="{{ pilot.faa_number or '' }}">
 
-<button class="btn">Save</button>
+<label>FAA Expiration</label>
+<input type="date" name="faa_expiration" value="{{ pilot.faa_expiration or '' }}">
+
+<button class="btn" type="submit">Save</button>
 
 </form>
+
+</div>
 
 {% endblock %}

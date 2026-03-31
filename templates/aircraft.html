@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h2>Aircraft</h2>
+<h1>Aircraft</h1>
 
 <a class="btn" href="/add_aircraft">+ Add Aircraft</a>
 
@@ -10,15 +10,37 @@
 
 {% for a in aircraft %}
 
-<div class="card">
+<a href="{{ url_for('aircraft_detail', aircraft_id=a.id) }}" class="card-link">
+<div class="card {% if loop.index == 1 %}top-aircraft{% endif %}">
 
-<h3>{{ a.name }}</h3>
+<h3>
+{{ a.name }}
+{% if loop.index == 1 %}
+<span class="badge">Top</span>
+{% endif %}
+</h3>
 
-<p>Type: {{ a.type }}</p>
+<p><strong>Type:</strong> {{ a.type or "—" }}</p>
 
+{% if a.notes %}
 <p>{{ a.notes }}</p>
+{% endif %}
+
+{% if a.battery_name %}
+<p><strong>Battery:</strong> {{ a.battery_name }}</p>
+{% endif %}
+
+<div class="flight-time">{{ a.total_minutes or 0 }} min</div>
+<div class="flight-label">TOTAL FLIGHT TIME</div>
+
+<div class="quick-log">
+<a href="/log_flight?quick=5&aircraft={{ a.id }}" class="quick-btn" onclick="event.stopPropagation();">+5</a>
+<a href="/log_flight?quick=7&aircraft={{ a.id }}" class="quick-btn" onclick="event.stopPropagation();">+7</a>
+<a href="/log_flight?quick=10&aircraft={{ a.id }}" class="quick-btn" onclick="event.stopPropagation();">+10</a>
+</div>
 
 </div>
+</a>
 
 {% endfor %}
 

@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect
-from database import get_db, init_db
+from database import get_db, init_db, process_flight
 
 app = Flask(__name__)
 
@@ -21,14 +21,37 @@ def home():
 
     batteries = db.execute("SELECT * FROM batteries").fetchall()
 
+    top_aircraft = db.execute("""
+        SELECT a.name, COALESCE(SUM(f.minutes),0) as total_minutes
+        FROM aircraft a
+        LEFT JOIN flights f ON a.id = f.aircraft_id
+        GROUP BY a.id
+        ORDER BY total_minutes DESC
+        LIMIT 1
+    """).fetchone()
+
     return render_template(
         "home.html",
         pilot=pilot,
         aircraft_count=aircraft_count,
         item_count=item_count,
         flight_count=flight_count,
-        batteries=batteries
+        batteries=batteries,
+        top_aircraft=top_aircraft
     )
+
+
+@app.route("/item/<int:item_id>")
+def item_detail(item_id):
+
+    db = get_db()
+
+    item = db.execute(
+        "SELECT * FROM items WHERE id = ?",
+        (item_id,)
+    ).fetchone()
+
+    return render_template("item_detail.html", item=item)
 
 
 @app.route("/profile", methods=["GET", "POST"])
@@ -41,13 +64,15 @@ def profile():
         db.execute("DELETE FROM pilot_profile")
 
         db.execute(
-            "INSERT INTO pilot_profile (name, ama_number, ama_expiration, faa_number, faa_expiration) VALUES (?,?,?,?,?)",
+            """INSERT INTO pilot_profile 
+            (name, ama_number, ama_expiration, faa_number, faa_expiration) 
+            VALUES (?,?,?,?,?)""",
             (
                 request.form["name"],
-                request.form["ama"],
-                request.form["ama_exp"],
-                request.form["faa"],
-                request.form["faa_exp"]
+                request.form["ama_number"],
+                request.form["ama_expiration"],
+                request.form["faa_number"],
+                request.form["faa_expiration"]
             )
         )
 
@@ -59,7 +84,6 @@ def profile():
     return render_template("profile.html", pilot=pilot)
 
 
-# ✅ AIRCRAFT LIST (NOW SHOWS DEFAULT BATTERY)
 @app.route("/aircraft")
 def aircraft():
 
@@ -74,7 +98,42 @@ def aircraft():
     return render_template("aircraft.html", aircraft=aircraft)
 
 
-# ✅ ADD AIRCRAFT (WITH DEFAULT BATTERY)
+@app.route("/aircraft/<int:aircraft_id>")
+def aircraft_detail(aircraft_id):
+
+    db = get_db()
+
+    aircraft = db.execute("""
+        SELECT a.*, b.name as battery_name
+        FROM aircraft a
+        LEFT JOIN batteries b ON a.default_battery_id = b.id
+        WHERE a.id=?
+    """, (aircraft_id,)).fetchone()
+
+    flights = db.execute("""
+        SELECT f.*, b.name as battery_name
+        FROM flights f
+        LEFT JOIN batteries b ON f.battery_id = b.id
+        WHERE f.aircraft_id = ?
+        ORDER BY f.date DESC
+    """, (aircraft_id,)).fetchall()
+
+    compatible_batteries = db.execute("""
+        SELECT b.*
+        FROM batteries b
+        JOIN aircraft_batteries ab
+        ON b.id = ab.battery_id
+        WHERE ab.aircraft_id = ?
+    """, (aircraft_id,)).fetchall()
+
+    return render_template(
+        "aircraft_detail.html",
+        aircraft=aircraft,
+        flights=flights,
+        compatible_batteries=compatible_batteries
+    )
+
+
 @app.route("/add_aircraft", methods=["GET", "POST"])
 def add_aircraft():
 
@@ -83,57 +142,42 @@ def add_aircraft():
 
     if request.method == "POST":
 
+        name = request.form["name"]
+        type = request.form["type"]
+        notes = request.form["notes"]
         default_battery = request.form.get("default_battery")
 
-        db.execute(
-            "INSERT INTO aircraft (name,type,notes,default_battery_id) VALUES (?,?,?,?)",
+        usable_batteries = request.form.getlist("usable_batteries[]")
+
+        if default_battery and default_battery not in usable_batteries:
+            usable_batteries.append(default_battery)
+
+        cursor = db.execute(
+            """
+            INSERT INTO aircraft (name, type, notes, default_battery_id)
+            VALUES (?, ?, ?, ?)
+            """,
             (
-                request.form["name"],
-                request.form["type"],
-                request.form["notes"],
+                name,
+                type,
+                notes,
                 default_battery if default_battery else None
             )
         )
 
+        aircraft_id = cursor.lastrowid
+
+        for battery_id in usable_batteries:
+            db.execute(
+                "INSERT INTO aircraft_batteries (aircraft_id, battery_id) VALUES (?, ?)",
+                (aircraft_id, battery_id)
+            )
+
         db.commit()
+
         return redirect("/aircraft")
 
     return render_template("add_aircraft.html", batteries=batteries)
-
-
-# ✅ EDIT AIRCRAFT
-@app.route("/edit_aircraft/<int:id>", methods=["GET", "POST"])
-def edit_aircraft(id):
-
-    db = get_db()
-
-    aircraft = db.execute("SELECT * FROM aircraft WHERE id=?", (id,)).fetchone()
-    batteries = db.execute("SELECT * FROM batteries").fetchall()
-
-    if request.method == "POST":
-
-        default_battery = request.form.get("default_battery")
-
-        db.execute("""
-            UPDATE aircraft
-            SET name=?, type=?, notes=?, default_battery_id=?
-            WHERE id=?
-        """, (
-            request.form["name"],
-            request.form["type"],
-            request.form["notes"],
-            default_battery if default_battery else None,
-            id
-        ))
-
-        db.commit()
-        return redirect("/aircraft")
-
-    return render_template(
-        "edit_aircraft.html",
-        aircraft=aircraft,
-        batteries=batteries
-    )
 
 
 @app.route("/items")
@@ -170,7 +214,6 @@ def add_item():
     return render_template("add_item.html")
 
 
-# ✅ LOG FLIGHT (UNCHANGED FUNCTIONALITY + SORT)
 @app.route("/log_flight", methods=["GET", "POST"])
 def log_flight():
 
@@ -199,55 +242,19 @@ def log_flight():
 
         if a and a["default_battery_id"]:
 
-            b = db.execute(
-                "SELECT * FROM batteries WHERE id=?",
-                (a["default_battery_id"],)
-            ).fetchone()
+            minutes = int(quick_minutes)
 
-            if b:
-                minutes = int(quick_minutes)
+            process_flight(a["id"], a["default_battery_id"], minutes)
 
-                db.execute(
-                    "INSERT INTO flights (aircraft_id, battery_id, minutes) VALUES (?,?,?)",
-                    (a["id"], b["id"], minutes)
-                )
-
-                db.execute(
-                    "UPDATE aircraft SET total_minutes = total_minutes + ? WHERE id=?",
-                    (minutes, a["id"])
-                )
-
-                db.execute(
-                    "UPDATE batteries SET cycles = cycles + 1 WHERE id=?",
-                    (b["id"],)
-                )
-
-                db.commit()
-
-                return redirect("/log_flight")
+            return redirect("/log_flight")
 
     if request.method == "POST":
 
         aircraft_id = request.form["aircraft"]
-        battery_id = request.form["battery"]
+        battery_id = request.form.get("battery") or None
         minutes = int(request.form["minutes"])
 
-        db.execute(
-            "INSERT INTO flights (aircraft_id, battery_id, minutes) VALUES (?,?,?)",
-            (aircraft_id, battery_id, minutes)
-        )
-
-        db.execute(
-            "UPDATE aircraft SET total_minutes = total_minutes + ? WHERE id=?",
-            (minutes, aircraft_id)
-        )
-
-        db.execute(
-            "UPDATE batteries SET cycles = cycles + 1 WHERE id=?",
-            (battery_id,)
-        )
-
-        db.commit()
+        process_flight(aircraft_id, battery_id, minutes)
 
         return redirect("/log_flight")
 

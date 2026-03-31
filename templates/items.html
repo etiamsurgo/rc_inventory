@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h2>RC Items</h2>
+<h1>RC Items</h1>
 
 <a class="btn" href="/add_item">+ Add Item</a>
 
@@ -10,17 +10,39 @@
 
 {% for i in items %}
 
+<a href="{{ url_for('item_detail', item_id=i.id) }}" class="card-link">
+
 <div class="card">
 
 <h3>{{ i.name }}</h3>
 
-<p><b>Category:</b> {{ i.category }}</p>
+<div class="item-category">
+{{ i.category or "ITEM" }}
+</div>
 
-<p>{{ i.brand }} {{ i.model }}</p>
+{% if i.brand %}
+<div class="item-brand">
+{{ i.brand }}
+</div>
+{% endif %}
 
+{% if i.model %}
+<div class="item-model">
+{{ i.model }}
+</div>
+{% endif %}
+
+{% if i.serial %}
+<p><strong>Serial:</strong> {{ i.serial }}</p>
+{% endif %}
+
+{% if i.notes %}
 <p>{{ i.notes }}</p>
+{% endif %}
 
 </div>
+
+</a>
 
 {% endfor %}
 

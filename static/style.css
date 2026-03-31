@@ -14,8 +14,16 @@ h1 {
     font-size: 20px;
 }
 
+/* ===== PAGE TITLES ===== */
+
+.container h1,
+.container h2 {
+    margin-top: 0;
+}
+
 h2 {
     margin-bottom: 10px;
+    margin-top: 20px;
 }
 
 h3 {
@@ -44,22 +52,155 @@ nav a:hover {
 /* ===== LAYOUT ===== */
 .container {
     padding: 15px;
+    max-width: 1100px;
+    margin: auto;
 }
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
 }
 
 
 /* ===== CARD ===== */
+.card-link {
+    text-decoration: none;
+    color: inherit;
+    display: contents;
+}
+
 .card {
     background: white;
-    padding: 15px;
+    padding: 18px;
     border-radius: 12px;
-    margin-bottom: 15px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    position: relative;
+    transition: 0.15s;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.card-link:hover .card {
+    transform: translateY(-3px);
+}
+
+.flight-time {
+    font-size: 32px;
+    font-weight: bold;
+    color: #2563eb;
+    text-align: center;
+    margin: 10px 0 0 0;
+}
+
+.flight-label {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #6b7280;
+}
+
+.item-category {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #6b7280;
+    text-transform: uppercase;
+}
+
+.item-brand {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2563eb;
+    margin-top: 8px;
+}
+
+.item-model {
+    font-size: 16px;
+    color: #374151;
+}
+
+
+/* Improve spacing inside cards */
+.card p {
+    margin: 6px 0;
+}
+
+.card strong {
+    color: #374151;
+}
+
+
+/* ===== ACTION CARDS ===== */
+.action-card {
+    background: #2563eb;
+    color: white;
+    padding: 12px;
+}
+
+.action-card h3 {
+    color: white;
+}
+
+.action-card p {
+    color: #e5e7eb;
+}
+
+.action-card:hover {
+    background: #1d4ed8;
+    transform: translateY(-4px);
+}
+
+
+/* ===== QUICK LOG (AIRCRAFT) ===== */
+.quick-log {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+}
+
+.quick-btn {
+    flex: 1;
+    text-align: center;
+    padding: 14px 0;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 10px;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+}
+
+.quick-btn:hover {
+    background: #1d4ed8;
+}
+
+
+/* ===== DASHBOARD STATS ===== */
+.stats {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.stat {
+    flex: 1;
+    background: #f3f4f6;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: bold;
+    color: #2563eb;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
 }
 
 
@@ -74,29 +215,10 @@ nav a:hover {
     font-size: 14px;
     border: none;
     cursor: pointer;
+    margin-bottom: 12px;
 }
 
 .btn:hover {
-    background: #1d4ed8;
-}
-
-
-/* 🔥 BIG MOBILE QUICK BUTTONS */
-.quick-btn {
-    display: inline-block;
-    padding: 14px 18px;
-    margin: 5px 5px 5px 0;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 10px;
-    background: #2563eb;
-    color: white;
-    text-decoration: none;
-    text-align: center;
-    min-width: 70px;
-}
-
-.quick-btn:hover {
     background: #1d4ed8;
 }
 
@@ -113,6 +235,27 @@ textarea {
     font-size: 14px;
 }
 
+.form-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.form-grid-full {
+    grid-column: 1 / -1;
+}
+
+.battery-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
 
 /* ===== QUICK LOG SECTION ===== */
 .quick-row {
@@ -127,15 +270,13 @@ textarea {
 }
 
 
-/* 🔥 MOST USED AIRCRAFT HIGHLIGHT */
+/* ===== MOST USED AIRCRAFT ===== */
 .top-aircraft {
     background: rgba(37, 99, 235, 0.08);
-    padding: 10px;
-    border-radius: 10px;
 }
 
 
-/* BADGE */
+/* ===== BADGE ===== */
 .badge {
     background: #f59e0b;
     color: #111;
@@ -154,7 +295,26 @@ textarea {
 }
 
 
-/* ===== MOBILE IMPROVEMENTS ===== */
+/* ===== TABLE ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+    background: #f9fafb;
+    font-weight: bold;
+}
+
+
+/* ===== MOBILE ===== */
 @media (max-width: 600px) {
 
     h1 {
@@ -176,12 +336,20 @@ textarea {
     }
 
     .card {
-        padding: 12px;
+        padding: 14px;
     }
 
     .quick-btn {
         width: 30%;
         padding: 16px 0;
-        font-size: 16px;
     }
+}
+
+
+/* ===== TOP AIRCRAFT DASHBOARD ===== */
+.top-aircraft-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2563eb;
+    margin: 10px 0;
 }
