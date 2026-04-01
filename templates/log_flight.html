@@ -4,57 +4,18 @@
 
 <h2>Log Flight</h2>
 
-<div class="card">
+<div class="form-container">
 
-<h3>Quick Log</h3>
-
-{% for a in aircraft %}
-
-<div class="quick-row {% if loop.index <= 2 %}top-aircraft{% endif %}">
-
-<div class="quick-title">
-{{ a.name }}
-
-{% if loop.index <= 2 %}
-<span class="badge">Most Used</span>
-{% endif %}
-
-</div>
-
-{% if a.default_battery_id %}
-
-<div class="quick-log">
-
-<a class="quick-btn" href="/log_flight?quick=5&aircraft={{ a.id }}">5</a>
-<a class="quick-btn" href="/log_flight?quick=7&aircraft={{ a.id }}">7</a>
-<a class="quick-btn" href="/log_flight?quick=10&aircraft={{ a.id }}">10</a>
-
-</div>
-
-{% else %}
-
-<div class="warning">No default battery set</div>
-
-{% endif %}
-
-</div>
-
-{% endfor %}
-
-</div>
-
-
-<div class="card">
-
-<h3>Manual Log</h3>
-
-<form method="POST">
+<form method="post">
 
 <label>Aircraft</label>
-<select name="aircraft" id="aircraft-select">
+
+<select name="aircraft" id="aircraft_select" required>
+
+<option value="">-- Select Aircraft --</option>
 
 {% for a in aircraft %}
-<option value="{{ a.id }}" data-battery="{{ a.default_battery_id }}">
+<option value="{{ a.id }}" {% if selected_aircraft == a.id|string %}selected{% endif %}>
 {{ a.name }}
 </option>
 {% endfor %}
@@ -64,53 +25,67 @@
 
 <label>Battery</label>
 
-<select name="battery" id="battery-select">
+<select name="battery">
+
+<option value="">-- None --</option>
 
 {% for b in batteries %}
-<option value="{{ b.id }}">
-{{ b.name }} ({{ b.cycles }} cycles)
-</option>
+<option value="{{ b.id }}">{{ b.name }}</option>
 {% endfor %}
 
 </select>
 
 
 <label>Minutes</label>
+
 <input type="number" name="minutes" required>
 
-<button class="btn">Log Flight</button>
+
+<label>Notes</label>
+
+<textarea name="notes"></textarea>
+
+
+<button class="btn" type="submit">Log Flight</button>
+
 
 </form>
 
 </div>
 
 
+<div class="quick-log">
+
+<h3>Quick Log</h3>
+
+{% if selected_aircraft %}
+
+<a class="quick-btn" href="/log_flight?quick=5&aircraft={{ selected_aircraft }}">+5</a>
+<a class="quick-btn" href="/log_flight?quick=7&aircraft={{ selected_aircraft }}">+7</a>
+<a class="quick-btn" href="/log_flight?quick=10&aircraft={{ selected_aircraft }}">+10</a>
+
+{% else %}
+
+<p>Select aircraft first</p>
+
+{% endif %}
+
+</div>
+
+
 <script>
 
-document.getElementById("aircraft-select").addEventListener("change", function() {
+const aircraftSelect = document.getElementById("aircraft_select")
 
-    let selected = this.options[this.selectedIndex]
-    let batteryId = selected.getAttribute("data-battery")
+aircraftSelect.addEventListener("change", function(){
 
-    let batterySelect = document.getElementById("battery-select")
+const aircraftId = this.value
 
-    if (batteryId) {
-
-        for (let i = 0; i < batterySelect.options.length; i++) {
-
-            if (batterySelect.options[i].value == batteryId) {
-
-                batterySelect.selectedIndex = i
-                break
-
-            }
-
-        }
-
-    }
+window.location = "/log_flight?aircraft=" + aircraftId
 
 })
 
 </script>
+
 
 {% endblock %}

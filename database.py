@@ -5,7 +5,7 @@ DB_NAME = "rc_fleet.db"
 
 
 def get_db():
-    conn = sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect("rc_fleet.db")
     conn.row_factory = sqlite3.Row
     return conn
 

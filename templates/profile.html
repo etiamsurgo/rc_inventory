@@ -5,28 +5,25 @@
 <h2>Pilot Profile</h2>
 
 <div class="form-container">
-
 <form method="POST">
 
 <label>Name</label>
-<input type="text" name="name" value="{{ pilot.name or '' }}">
+<input type="text" name="name" value="{{ pilot.name if pilot else '' }}">
 
 <label>AMA Number</label>
-<input type="text" name="ama_number" value="{{ pilot.ama_number or '' }}">
+<input type="text" name="ama_number" value="{{ pilot.ama_number if pilot else '' }}">
 
 <label>AMA Expiration</label>
-<input type="date" name="ama_expiration" value="{{ pilot.ama_expiration or '' }}">
+<input type="date" name="ama_expiration" value="{{ pilot.ama_expiration if pilot else '' }}">
 
 <label>FAA Number</label>
-<input type="text" name="faa_number" value="{{ pilot.faa_number or '' }}">
+<input type="text" name="faa_number" value="{{ pilot.faa_number if pilot else '' }}">
 
 <label>FAA Expiration</label>
-<input type="date" name="faa_expiration" value="{{ pilot.faa_expiration or '' }}">
+<input type="date" name="faa_expiration" value="{{ pilot.faa_expiration if pilot else '' }}">
 
 <button class="btn" type="submit">Save</button>
-
 </form>
-
 </div>
 
 {% endblock %}

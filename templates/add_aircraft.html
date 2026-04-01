@@ -11,6 +11,16 @@
 <div class="form-grid">
 
 <div>
+<label>Manufacturer</label>
+<input type="text" name="manufacturer">
+</div>
+
+<div>
+<label>Model</label>
+<input type="text" name="model">
+</div>
+
+<div>
 <label>Nickname</label>
 <input type="text" name="name" required>
 </div>
@@ -18,23 +28,26 @@
 <div>
 <label>Type</label>
 <select name="type">
+
 <option value="">-- Select Type --</option>
-<option>STOL</option>
-<option>Trainer</option>
-<option>Sport</option>
-<option>Aerobatic</option>
-<option>Warbird</option>
-<option>Glider</option>
-<option>Jet</option>
-<option>Helicopter</option>
-<option>Multirotor</option>
+<option value="Aerobatic">Aerobatic</option>
+<option value="Glider">Glider</option>
+<option value="Jet">Jet</option>
+<option value="Sport">Sport</option>
+<option value="STOL">STOL</option>
+<option value="Trainer">Trainer</option>
+<option value="Warbird">Warbird</option>
+<option value="Wing">Wing</option>
+<option value="Helicopter">Helicopter</option>
+<option value="Multirotor">Multirotor</option>
+
 </select>
 </div>
 
 <div class="form-grid-full">
 <label>Default Battery</label>
+<select name="default_battery" id="default_battery">
 
-<select name="default_battery" id="default-battery">
 <option value="">-- None --</option>
 
 {% for b in batteries %}
@@ -42,10 +55,10 @@
 {% endfor %}
 
 </select>
-
 </div>
 
 <div class="form-grid-full">
+
 <label>Usable Batteries</label>
 
 <div class="battery-list">
@@ -62,12 +75,17 @@
 </div>
 
 <div class="form-grid-full">
+
 <label>Notes</label>
+
 <textarea name="notes"></textarea>
+
 </div>
 
 <div class="form-grid-full">
+
 <button class="btn" type="submit">Save Aircraft</button>
+
 </div>
 
 </div>
@@ -76,23 +94,24 @@
 
 </div>
 
+
 <script>
 
-const defaultSelect = document.getElementById("default-battery")
+const defaultBattery = document.getElementById("default_battery")
 
-defaultSelect.addEventListener("change", function(){
+defaultBattery.addEventListener("change", function(){
 
-    const id = this.value
+const id = this.value
 
-    if(!id) return
+if(!id) return
 
-    const checkbox = document.querySelector(
-        "input[name='usable_batteries[]'][value='"+id+"']"
-    )
+const checkbox = document.querySelector(
+"input[name='usable_batteries[]'][value='"+id+"']"
+)
 
-    if(checkbox){
-        checkbox.checked = true
-    }
+if(checkbox){
+checkbox.checked = true
+}
 
 })
 
