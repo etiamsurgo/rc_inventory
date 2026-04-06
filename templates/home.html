@@ -18,13 +18,21 @@
 <p><b>AMA #:</b> {{ pilot.ama_number }}</p>
 
 {% if pilot.ama_expiration %}
-<p><b>AMA Exp:</b> {{ pilot.ama_expiration }}</p>
+<p><b>AMA Exp:</b> {{ pilot.ama_expiration }}
+{% if pilot.ama_expiration_label %}
+<span class="expiration-badge {{ pilot.ama_expiration_status }}">{{ pilot.ama_expiration_label }}</span>
+{% endif %}
+</p>
 {% endif %}
 
 <p><b>FAA #:</b> {{ pilot.faa_number }}</p>
 
 {% if pilot.faa_expiration %}
-<p><b>FAA Exp:</b> {{ pilot.faa_expiration }}</p>
+<p><b>FAA Exp:</b> {{ pilot.faa_expiration }}
+{% if pilot.faa_expiration_label %}
+<span class="expiration-badge {{ pilot.faa_expiration_status }}">{{ pilot.faa_expiration_label }}</span>
+{% endif %}
+</p>
 {% endif %}
 
 {% else %}
@@ -111,33 +119,5 @@
 
 </div>
 
-
-<!-- Quick Actions -->
-<h2>Quick Actions</h2>
-
-<div class="grid">
-
-<a class="card-link" href="/log_flight">
-<div class="card action-card">
-<h3>✈️ Log Flight</h3>
-<p>Record a new flight and update battery cycles.</p>
-</div>
-</a>
-
-<a class="card-link" href="/add_aircraft">
-<div class="card action-card">
-<h3>➕ Add Aircraft</h3>
-<p>Add a new aircraft to your fleet.</p>
-</div>
-</a>
-
-<a class="card-link" href="/add_item">
-<div class="card action-card">
-<h3>🧰 Add Item</h3>
-<p>Add tools, radios, or other RC gear.</p>
-</div>
-</a>
-
-</div>
 
 {% endblock %}

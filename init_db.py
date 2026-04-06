@@ -4,7 +4,6 @@ conn = sqlite3.connect("rc_fleet.db")
 cursor = conn.cursor()
 
 cursor.executescript("""
-
 CREATE TABLE IF NOT EXISTS aircraft (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     manufacturer TEXT,
@@ -53,10 +52,31 @@ CREATE TABLE IF NOT EXISTS pilot_profile (
     ama_number TEXT,
     ama_expiration TEXT,
     faa_number TEXT,
-    faa_expiration TEXT
+    faa_expiration TEXT,
+    notes TEXT
 );
-
 """)
+
+# Add new columns to batteries table if they don't exist
+try:
+    cursor.execute("ALTER TABLE batteries ADD COLUMN type TEXT")
+except sqlite3.OperationalError:
+    pass  # Column already exists
+
+try:
+    cursor.execute("ALTER TABLE batteries ADD COLUMN brand TEXT")
+except sqlite3.OperationalError:
+    pass
+
+try:
+    cursor.execute("ALTER TABLE batteries ADD COLUMN connector TEXT")
+except sqlite3.OperationalError:
+    pass
+
+try:
+    cursor.execute("ALTER TABLE batteries ADD COLUMN notes TEXT")
+except sqlite3.OperationalError:
+    pass
 
 conn.commit()
 conn.close()

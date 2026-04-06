@@ -74,22 +74,11 @@
 <label>Usable Batteries</label>
 
 {% if batteries %}
-<div class="battery-list">
-
+<select name="usable_batteries[]" id="usable_batteries" multiple size="5">
 {% for b in batteries %}
-
-<label>
-<input type="checkbox"
-name="usable_batteries[]"
-value="{{ b.id }}"
-{% if b.id in assigned_ids %}checked{% endif %}
->
-{{ b.name }}
-</label>
-
+<option value="{{ b.id }}" {% if b.id in assigned_ids %}selected{% endif %}>{{ b.name }}</option>
 {% endfor %}
-
-</div>
+</select>
 {% else %}
 <p class="note">No batteries available to assign. Create battery records first.</p>
 {% endif %}
@@ -128,19 +117,16 @@ const defaultBattery = document.getElementById("default_battery")
 
 if (defaultBattery) {
     defaultBattery.addEventListener("change", function(){
-
         const id = this.value
+        if (!id) return
 
-        if(!id) return
-
-        const checkbox = document.querySelector(
-            "input[name='usable_batteries[]'][value='"+id+"']"
+        const option = document.querySelector(
+            "select[name='usable_batteries[]'] option[value='" + id + "']"
         )
 
-        if(checkbox){
-            checkbox.checked = true
+        if (option) {
+            option.selected = true
         }
-
     })
 }
 

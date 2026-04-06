@@ -67,16 +67,11 @@
 <label>Usable Batteries</label>
 
 {% if batteries %}
-<div class="battery-list">
-
+<select name="usable_batteries[]" id="usable_batteries" multiple size="5">
 {% for b in batteries %}
-<label>
-<input type="checkbox" name="usable_batteries[]" value="{{ b.id }}">
-{{ b.name }}
-</label>
+<option value="{{ b.id }}">{{ b.name }}</option>
 {% endfor %}
-
-</div>
+</select>
 {% else %}
 <p class="note">No batteries available to assign yet.</p>
 {% endif %}

@@ -27,18 +27,22 @@
 
 <select name="battery">
 
-<option value="">-- None --</option>
+<option value="" {% if not default_battery_id %}selected{% endif %}>-- None --</option>
 
 {% for b in batteries %}
-<option value="{{ b.id }}">{{ b.name }}</option>
+<option value="{{ b.id }}" {% if default_battery_id == b.id %}selected{% endif %}>{{ b.name }}</option>
 {% endfor %}
 
 </select>
 
+{% if choose_battery %}
+<p class="note">No default battery set for this aircraft. Select the battery used to log this flight.</p>
+{% endif %}
+
 
 <label>Minutes</label>
 
-<input type="number" name="minutes" required>
+<input type="number" name="minutes" required value="{{ selected_minutes or '' }}">
 
 
 <label>Notes</label>
@@ -60,9 +64,9 @@
 
 {% if selected_aircraft %}
 
-<a class="quick-btn" href="/log_flight?quick=5&aircraft={{ selected_aircraft }}">+5</a>
-<a class="quick-btn" href="/log_flight?quick=7&aircraft={{ selected_aircraft }}">+7</a>
-<a class="quick-btn" href="/log_flight?quick=10&aircraft={{ selected_aircraft }}">+10</a>
+<a class="quick-btn" href="/log_flight?minutes=5&aircraft={{ selected_aircraft }}">+5</a>
+<a class="quick-btn" href="/log_flight?minutes=7&aircraft={{ selected_aircraft }}">+7</a>
+<a class="quick-btn" href="/log_flight?minutes=10&aircraft={{ selected_aircraft }}">+10</a>
 
 {% else %}
 

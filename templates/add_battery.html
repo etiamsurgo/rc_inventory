@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Add Battery</h2>
+
+<div class="form-container">
+
+<form method="post">
+
+<div class="form-grid">
+
+<div>
+<label>Name (optional)</label>
+<input name="name" placeholder="Auto-generated if empty">
+</div>
+
+<div>
+<label>Battery Type</label>
+<select name="type">
+<option>LiPo</option>
+<option>LiFe</option>
+<option>Li-ion</option>
+<option>NiMH</option>
+<option>Alkaline</option>
+<option>Other</option>
+</select>
+</div>
+
+<div>
+<label>Brand</label>
+<input name="brand">
+</div>
+
+<div>
+<label>Capacity (mAh)</label>
+<input name="capacity" type="number">
+</div>
+
+<div>
+<label>Number of Cells</label>
+<input name="cells" type="number">
+</div>
+
+<div>
+<label>Connector Type</label>
+<select name="connector">
+<option>XT30</option>
+<option>XT60</option>
+<option>IC3</option>
+<option>IC5</option>
+<option>JST</option>
+<option>Deans</option>
+<option>EC3</option>
+<option>EC5</option>
+<option>Other</option>
+</select>
+</div>
+
+<div>
+<label>Notes</label>
+<textarea name="notes"></textarea>
+</div>
+
+</div>
+
+<button type="submit">Add Battery</button>
+
+</form>
+
+</div>
+
+{% endblock %}

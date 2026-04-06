@@ -1,10 +1,47 @@
 from flask import Flask, render_template, request, redirect
 from database import get_db, DB_NAME
 import sqlite3
+from datetime import datetime
 
 app = Flask(__name__)
 
 sync_done = False
+
+
+def expiration_info(date_str):
+    if not date_str:
+        return None
+
+    try:
+        exp_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+    today = datetime.now().date()
+    days_left = (exp_date - today).days
+
+    if days_left < 0:
+        status = "red"
+        label = f"Expired {-days_left} day{'s' if -days_left != 1 else ''} ago"
+    elif days_left == 0:
+        status = "red"
+        label = "Expires today"
+    elif days_left <= 7:
+        status = "red"
+        label = f"Expires in {days_left} day{'s' if days_left != 1 else ''}"
+    elif days_left <= 30:
+        status = "yellow"
+        label = f"Expires in {days_left} days"
+    else:
+        status = "green"
+        label = f"Expires in {days_left} days"
+
+    return {
+        "status": status,
+        "label": label,
+        "days_left": days_left
+    }
+
 
 def sync_battery_items():
     conn = sqlite3.connect(DB_NAME, timeout=5)
@@ -51,6 +88,19 @@ def home():
     """).fetchone()
 
     pilot = db.execute("SELECT * FROM pilot_profile WHERE id=1").fetchone()
+
+    if pilot:
+        pilot = dict(pilot)
+
+        ama_info = expiration_info(pilot["ama_expiration"])
+        if ama_info:
+            pilot["ama_expiration_label"] = ama_info["label"]
+            pilot["ama_expiration_status"] = ama_info["status"]
+
+        faa_info = expiration_info(pilot["faa_expiration"])
+        if faa_info:
+            pilot["faa_expiration_label"] = faa_info["label"]
+            pilot["faa_expiration_status"] = faa_info["status"]
 
     return render_template(
         "home.html",
@@ -286,10 +336,19 @@ def log_flight():
     ).fetchall()
 
     aircraft_id = request.args.get("aircraft") or request.form.get("aircraft")
+    selected_aircraft = aircraft_id
 
     batteries = []
+    default_battery_id = None
 
     if aircraft_id:
+        aircraft_row = db.execute(
+            "SELECT default_battery_id FROM aircraft WHERE id=?",
+            (aircraft_id,)
+        ).fetchone()
+        if aircraft_row:
+            default_battery_id = aircraft_row["default_battery_id"]
+
         batteries = db.execute("""
         SELECT b.*
         FROM batteries b
@@ -299,18 +358,7 @@ def log_flight():
         ORDER BY b.name
         """, (aircraft_id,)).fetchall()
 
-    quick = request.args.get("quick")
-
-    if quick and aircraft_id:
-
-        db.execute("""
-        INSERT INTO flights (aircraft_id, minutes)
-        VALUES (?,?)
-        """, (aircraft_id, quick))
-
-        db.commit()
-
-        return redirect(f"/aircraft/{aircraft_id}")
+    selected_minutes = request.args.get("minutes")
 
     if request.method == "POST":
 
@@ -343,26 +391,47 @@ def log_flight():
         "log_flight.html",
         aircraft=aircraft,
         batteries=batteries,
-        selected_aircraft=aircraft_id
+        selected_aircraft=selected_aircraft,
+        default_battery_id=default_battery_id,
+        selected_minutes=selected_minutes
     )
 
 
 @app.route("/items")
 def items():
+    return redirect("/accessories")
+
+
+@app.route("/batteries")
+def batteries():
+    db = get_db()
+
+    batteries_list = db.execute("""
+    SELECT *
+    FROM batteries
+    ORDER BY name
+    """).fetchall()
+
+    return render_template("batteries.html", batteries=batteries_list)
+
+
+@app.route("/accessories")
+def accessories():
     db = get_db()
 
     items = db.execute("""
     SELECT *
     FROM items
+    WHERE category != 'Battery'
     ORDER BY category,name
     """).fetchall()
 
-    return render_template("items.html", items=items)
+    return render_template("items.html", items=items, page_title="Accessories")
 
 
 @app.route("/add_item", methods=["GET", "POST"])
 def add_item():
-
+    category = request.args.get('category', '')
     db = get_db()
 
     if request.method == "POST":
@@ -390,7 +459,74 @@ def add_item():
 
         return redirect("/items")
 
-    return render_template("add_item.html")
+    return render_template("add_item.html", selected_category=category)
+
+
+@app.route("/add_battery", methods=["GET", "POST"])
+def add_battery():
+    if request.method == "POST":
+        battery_type = request.form["type"]
+        brand = request.form["brand"]
+        capacity = request.form["capacity"]
+        cells = request.form["cells"]
+        connector = request.form["connector"]
+        notes = request.form["notes"]
+        name = request.form.get("name") or f"{brand} {capacity}mAh {cells}S {battery_type}"
+
+        db = get_db()
+        db.execute("""
+        INSERT INTO batteries (name, type, brand, capacity, cells, connector, cycles, notes)
+        VALUES (?, ?, ?, ?, ?, ?, 0, ?)
+        """, (name, battery_type, brand, capacity, cells, connector, notes))
+
+        db.commit()
+        return redirect("/batteries")
+
+    return render_template("add_battery.html")
+
+
+@app.route("/edit_battery/<int:battery_id>", methods=["GET", "POST"])
+def edit_battery(battery_id):
+    db = get_db()
+
+    if request.method == "POST":
+        battery_type = request.form["type"]
+        brand = request.form["brand"]
+        capacity = request.form["capacity"]
+        cells = request.form["cells"]
+        connector = request.form["connector"]
+        notes = request.form["notes"]
+        original_name = request.form.get("original_name")
+        name = request.form.get("name")
+
+        if not name or name == original_name:
+            name = f"{brand} {capacity}mAh {cells}S {battery_type}"
+
+        db.execute("""
+        UPDATE batteries
+        SET name=?, type=?, brand=?, capacity=?, cells=?, connector=?, notes=?
+        WHERE id=?
+        """, (name, battery_type, brand, capacity, cells, connector, notes, battery_id))
+        db.commit()
+        return redirect("/batteries")
+
+    battery = db.execute(
+        "SELECT * FROM batteries WHERE id=?",
+        (battery_id,) 
+    ).fetchone()
+
+    return render_template("edit_battery.html", battery=battery)
+
+
+@app.route("/delete_battery/<int:battery_id>", methods=["POST"])
+def delete_battery(battery_id):
+    db = get_db()
+    db.execute("DELETE FROM aircraft_batteries WHERE battery_id=?", (battery_id,))
+    db.execute("UPDATE aircraft SET default_battery_id=NULL WHERE default_battery_id=?", (battery_id,))
+    db.execute("DELETE FROM flights WHERE battery_id=?", (battery_id,))
+    db.execute("DELETE FROM batteries WHERE id=?", (battery_id,))
+    db.commit()
+    return redirect("/batteries")
 
 
 @app.route("/item/<int:item_id>")

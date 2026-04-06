@@ -19,20 +19,18 @@
 <label>Category</label>
 
 <select name="category">
-
-<option>Battery</option>
-<option>Motor</option>
-<option>ESC</option>
-<option>Servo</option>
-<option>Receiver</option>
-<option>Transmitter</option>
-<option>Remote ID</option>
-<option>Charger</option>
-<option>Propeller</option>
-<option>FPV</option>
-<option>Tool</option>
-<option>Other</option>
-
+<option value="Battery" {% if selected_category == 'Battery' %}selected{% endif %}>Battery</option>
+<option value="Motor" {% if selected_category == 'Motor' %}selected{% endif %}>Motor</option>
+<option value="ESC" {% if selected_category == 'ESC' %}selected{% endif %}>ESC</option>
+<option value="Servo" {% if selected_category == 'Servo' %}selected{% endif %}>Servo</option>
+<option value="Receiver" {% if selected_category == 'Receiver' %}selected{% endif %}>Receiver</option>
+<option value="Transmitter" {% if selected_category == 'Transmitter' %}selected{% endif %}>Transmitter</option>
+<option value="Remote ID" {% if selected_category == 'Remote ID' %}selected{% endif %}>Remote ID</option>
+<option value="Charger" {% if selected_category == 'Charger' %}selected{% endif %}>Charger</option>
+<option value="Propeller" {% if selected_category == 'Propeller' %}selected{% endif %}>Propeller</option>
+<option value="FPV" {% if selected_category == 'FPV' %}selected{% endif %}>FPV</option>
+<option value="Tool" {% if selected_category == 'Tool' %}selected{% endif %}>Tool</option>
+<option value="Other" {% if selected_category == 'Other' %}selected{% endif %}>Other</option>
 </select>
 
 </div>

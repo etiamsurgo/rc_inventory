@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Batteries</h1>
+
+<a class="btn" href="/add_battery">+ Add Battery</a>
+
+<div class="grid">
+
+{% for b in batteries %}
+
+<div class="card">
+
+<h3>{{ b.name }}</h3>
+
+<div class="item-category">
+{{ b.type or "BATTERY" }}
+</div>
+
+{% if b.brand %}
+<div class="item-brand">
+{{ b.brand }}
+</div>
+{% endif %}
+
+{% if b.capacity %}
+<p><strong>Capacity:</strong> {{ b.capacity }} mAh</p>
+{% endif %}
+
+{% if b.cells %}
+<p><strong>Cells:</strong> {{ b.cells }}S</p>
+{% endif %}
+
+{% if b.connector %}
+<p><strong>Connector:</strong> {{ b.connector }}</p>
+{% endif %}
+
+<p><strong>Cycles:</strong> {{ b.cycles }}</p>
+
+{% if b.notes %}
+<p>{{ b.notes }}</p>
+{% endif %}
+
+<div class="card-actions">
+<a class="btn small" href="/edit_battery/{{ b.id }}">Edit</a>
+<form method="POST" action="/delete_battery/{{ b.id }}" onsubmit="return confirm('Delete this battery?');" style="display:inline;">
+<button class="btn small danger" type="submit">Delete</button>
+</form>
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

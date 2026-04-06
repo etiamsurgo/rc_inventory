@@ -35,16 +35,31 @@ h3 {
 nav {
     background: #111827;
     padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-nav a {
-    color: #d1d5db;
+.nav-main a {
     margin-right: 15px;
-    text-decoration: none;
-    font-size: 14px;
 }
 
-nav a:hover {
+.nav-quick {
+    display: flex;
+    gap: 10px;
+}
+
+.quick-action {
+    font-size: 12px;
+    padding: 4px 8px;
+    background: #374151;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #d1d5db;
+}
+
+.quick-action:hover {
+    background: #4b5563;
     color: white;
 }
 
@@ -284,6 +299,51 @@ textarea {
     font-size: 11px;
     border-radius: 4px;
     margin-left: 6px;
+}
+
+.expiration-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 12px;
+    border-radius: 999px;
+    margin-left: 8px;
+}
+
+.expiration-badge.green {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.expiration-badge.yellow {
+    background: #fef3c7;
+    color: #78350f;
+}
+
+.expiration-badge.red {
+    background: #fecaca;
+    color: #7f1d1d;
+}
+
+.expiration-alert {
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.expiration-alert.green {
+    background: #ecfdf5;
+    color: #065f46;
+}
+
+.expiration-alert.yellow {
+    background: #fefce8;
+    color: #92400e;
+}
+
+.expiration-alert.red {
+    background: #fee2e2;
+    color: #991b1b;
 }
 
 

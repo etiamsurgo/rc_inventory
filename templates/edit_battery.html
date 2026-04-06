@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Edit Battery</h2>
+
+<div class="form-container">
+
+<form method="POST">
+
+<div class="form-grid">
+
+<div>
+<label>Name (optional)</label>
+<input name="name" value="{{ battery.name }}" placeholder="Auto-generated if empty">
+<input type="hidden" name="original_name" value="{{ battery.name }}">
+</div>
+
+<div>
+<label>Battery Type</label>
+<select name="type">
+<option {% if battery.type == 'LiPo' %}selected{% endif %}>LiPo</option>
+<option {% if battery.type == 'LiFe' %}selected{% endif %}>LiFe</option>
+<option {% if battery.type == 'Li-ion' %}selected{% endif %}>Li-ion</option>
+<option {% if battery.type == 'NiMH' %}selected{% endif %}>NiMH</option>
+<option {% if battery.type == 'Alkaline' %}selected{% endif %}>Alkaline</option>
+<option {% if battery.type == 'Other' %}selected{% endif %}>Other</option>
+</select>
+</div>
+
+<div>
+<label>Brand</label>
+<input name="brand" value="{{ battery.brand }}">
+</div>
+
+<div>
+<label>Capacity (mAh)</label>
+<input name="capacity" type="number" value="{{ battery.capacity }}">
+</div>
+
+<div>
+<label>Number of Cells</label>
+<input name="cells" type="number" value="{{ battery.cells }}">
+</div>
+
+<div>
+<label>Connector Type</label>
+<select name="connector">
+<option {% if battery.connector == 'XT30' %}selected{% endif %}>XT30</option>
+<option {% if battery.connector == 'XT60' %}selected{% endif %}>XT60</option>
+<option {% if battery.connector == 'IC3' %}selected{% endif %}>IC3</option>
+<option {% if battery.connector == 'IC5' %}selected{% endif %}>IC5</option>
+<option {% if battery.connector == 'JST' %}selected{% endif %}>JST</option>
+<option {% if battery.connector == 'Deans' %}selected{% endif %}>Deans</option>
+<option {% if battery.connector == 'EC3' %}selected{% endif %}>EC3</option>
+<option {% if battery.connector == 'EC5' %}selected{% endif %}>EC5</option>
+<option {% if battery.connector == 'Other' %}selected{% endif %}>Other</option>
+</select>
+</div>
+
+</div>
+
+<div class="form-grid-full">
+<label>Notes</label>
+<textarea name="notes">{{ battery.notes }}</textarea>
+</div>
+
+<div class="form-grid-full form-actions">
+<button class="btn" type="submit">Save Battery</button>
+<a class="btn secondary" href="/batteries">Back</a>
+</div>
+
+</form>
+
+</div>
+
+{% endblock %}
