@@ -46,6 +46,8 @@
 
 <div class="form-grid-full">
 <label>Default Battery</label>
+
+{% if batteries %}
 <select name="default_battery" id="default_battery">
 
 <option value="">-- None --</option>
@@ -55,12 +57,16 @@
 {% endfor %}
 
 </select>
+{% else %}
+<p class="note">No batteries found. Add battery records before selecting a default battery.</p>
+{% endif %}
 </div>
 
 <div class="form-grid-full">
 
 <label>Usable Batteries</label>
 
+{% if batteries %}
 <div class="battery-list">
 
 {% for b in batteries %}
@@ -71,6 +77,9 @@
 {% endfor %}
 
 </div>
+{% else %}
+<p class="note">No batteries available to assign yet.</p>
+{% endif %}
 
 </div>
 
@@ -99,21 +108,23 @@
 
 const defaultBattery = document.getElementById("default_battery")
 
-defaultBattery.addEventListener("change", function(){
+if (defaultBattery) {
+    defaultBattery.addEventListener("change", function(){
 
-const id = this.value
+        const id = this.value
 
-if(!id) return
+        if(!id) return
 
-const checkbox = document.querySelector(
-"input[name='usable_batteries[]'][value='"+id+"']"
-)
+        const checkbox = document.querySelector(
+            "input[name='usable_batteries[]'][value='"+id+"']"
+        )
 
-if(checkbox){
-checkbox.checked = true
+        if(checkbox){
+            checkbox.checked = true
+        }
+
+    })
 }
-
-})
 
 </script>
 

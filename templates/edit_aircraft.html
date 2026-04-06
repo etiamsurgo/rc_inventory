@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Edit Aircraft</h2>
+
+<div class="form-container">
+
+<form method="POST">
+
+<div class="form-grid">
+
+<div>
+<label>Manufacturer</label>
+<input type="text" name="manufacturer" value="{{ aircraft.manufacturer }}">
+</div>
+
+<div>
+<label>Model</label>
+<input type="text" name="model" value="{{ aircraft.model }}">
+</div>
+
+<div>
+<label>Nickname</label>
+<input type="text" name="name" value="{{ aircraft.name }}" required>
+</div>
+
+<div>
+<label>Type</label>
+<select name="type">
+
+<option value="">-- Select Type --</option>
+
+<option value="Aerobatic" {% if aircraft.type=="Aerobatic" %}selected{% endif %}>Aerobatic</option>
+<option value="Glider" {% if aircraft.type=="Glider" %}selected{% endif %}>Glider</option>
+<option value="Jet" {% if aircraft.type=="Jet" %}selected{% endif %}>Jet</option>
+<option value="Sport" {% if aircraft.type=="Sport" %}selected{% endif %}>Sport</option>
+<option value="STOL" {% if aircraft.type=="STOL" %}selected{% endif %}>STOL</option>
+<option value="Trainer" {% if aircraft.type=="Trainer" %}selected{% endif %}>Trainer</option>
+<option value="Warbird" {% if aircraft.type=="Warbird" %}selected{% endif %}>Warbird</option>
+<option value="Wing" {% if aircraft.type=="Wing" %}selected{% endif %}>Wing</option>
+<option value="Helicopter" {% if aircraft.type=="Helicopter" %}selected{% endif %}>Helicopter</option>
+<option value="Multirotor" {% if aircraft.type=="Multirotor" %}selected{% endif %}>Multirotor</option>
+
+</select>
+</div>
+
+<div class="form-grid-full">
+
+<label>Default Battery</label>
+
+{% if batteries %}
+<select name="default_battery" id="default_battery">
+
+<option value="">-- None --</option>
+
+{% for b in batteries %}
+<option value="{{ b.id }}"
+{% if aircraft.default_battery_id == b.id %}selected{% endif %}
+>
+{{ b.name }}
+</option>
+{% endfor %}
+
+</select>
+{% else %}
+<p class="note">No batteries found. Add batteries before selecting a default battery.</p>
+{% endif %}
+
+</div>
+
+<div class="form-grid-full">
+
+<label>Usable Batteries</label>
+
+{% if batteries %}
+<div class="battery-list">
+
+{% for b in batteries %}
+
+<label>
+<input type="checkbox"
+name="usable_batteries[]"
+value="{{ b.id }}"
+{% if b.id in assigned_ids %}checked{% endif %}
+>
+{{ b.name }}
+</label>
+
+{% endfor %}
+
+</div>
+{% else %}
+<p class="note">No batteries available to assign. Create battery records first.</p>
+{% endif %}
+
+</div>
+
+<div class="form-grid-full">
+
+<label>Notes</label>
+
+<textarea name="notes">{{ aircraft.notes }}</textarea>
+
+</div>
+
+<div class="form-grid-full form-actions">
+
+<button class="btn" type="submit">Save Changes</button>
+<a class="btn secondary" href="/aircraft">Back</a>
+
+</div>
+
+</div>
+
+</form>
+
+<form method="POST" action="/delete_aircraft/{{ aircraft.id }}" onsubmit="return confirm('Delete this aircraft and all associated flights?');">
+    <button class="btn danger" type="submit">Delete Aircraft</button>
+</form>
+
+</div>
+
+
+<script>
+
+const defaultBattery = document.getElementById("default_battery")
+
+if (defaultBattery) {
+    defaultBattery.addEventListener("change", function(){
+
+        const id = this.value
+
+        if(!id) return
+
+        const checkbox = document.querySelector(
+            "input[name='usable_batteries[]'][value='"+id+"']"
+        )
+
+        if(checkbox){
+            checkbox.checked = true
+        }
+
+    })
+}
+
+</script>
+
+{% endblock %}
