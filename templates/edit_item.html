@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Edit RC Accessory</h2>
+
+<div class="form-container">
+
+<form method="POST">
+
+<div class="form-grid">
+
+<div>
+<label>Name</label>
+<input name="name" value="{{ item.name }}" required>
+</div>
+
+<div>
+<label>Category</label>
+
+<select name="category">
+<option value="Camera" {% if item.category == 'Camera' %}selected{% endif %}>Camera</option>
+<option value="Charger" {% if item.category == 'Charger' %}selected{% endif %}>Charger</option>
+<option value="ESC" {% if item.category == 'ESC' %}selected{% endif %}>ESC</option>
+<option value="Flight Controller" {% if item.category == 'Flight Controller' %}selected{% endif %}>Flight Controller</option>
+<option value="Goggles" {% if item.category == 'Goggles' %}selected{% endif %}>Goggles</option>
+<option value="Motor" {% if item.category == 'Motor' %}selected{% endif %}>Motor</option>
+<option value="Receiver" {% if item.category == 'Receiver' %}selected{% endif %}>Receiver</option>
+<option value="Remote ID" {% if item.category == 'Remote ID' %}selected{% endif %}>Remote ID</option>
+<option value="Servo" {% if item.category == 'Servo' %}selected{% endif %}>Servo</option>
+<option value="Transmitter" {% if item.category == 'Transmitter' %}selected{% endif %}>Transmitter</option>
+<option value="VTX" {% if item.category == 'VTX' %}selected{% endif %}>VTX</option>
+<option value="Other" {% if item.category == 'Other' %}selected{% endif %}>Other</option>
+</select>
+
+</div>
+
+<div>
+<label>Brand</label>
+<input name="brand" value="{{ item.brand }}">
+</div>
+
+<div>
+<label>Model</label>
+<input name="model" value="{{ item.model }}">
+</div>
+
+<div>
+<label>Serial</label>
+<input name="serial" value="{{ item.serial }}">
+</div>
+
+<div class="form-grid-full">
+<label>Notes</label>
+<textarea name="notes">{{ item.notes }}</textarea>
+</div>
+
+<div class="form-grid-full">
+<button class="btn" type="submit">Update Accessory</button>
+<a class="btn secondary" href="/accessories">Cancel</a>
+</div>
+
+</div>
+
+</form>
+
+</div>
+
+{% endblock %}

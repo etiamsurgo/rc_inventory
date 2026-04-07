@@ -2,8 +2,11 @@ from flask import Flask, render_template, request, redirect
 from database import get_db, DB_NAME
 import sqlite3
 from datetime import datetime
+from init_db import initialize_database
 
 app = Flask(__name__)
+
+initialize_database()
 
 sync_done = False
 
@@ -44,19 +47,17 @@ def expiration_info(date_str):
 
 
 def sync_battery_items():
-    conn = sqlite3.connect(DB_NAME, timeout=5)
-    conn.execute("PRAGMA busy_timeout = 5000")
-    conn.execute("""
-        INSERT INTO batteries (name, capacity, cells, cycles)
-        SELECT i.name, NULL, NULL, 0
-        FROM items i
-        WHERE i.category = 'Battery'
-          AND NOT EXISTS (
-              SELECT 1 FROM batteries b WHERE b.name = i.name
-          )
-    """)
-    conn.commit()
-    conn.close()
+    with sqlite3.connect(DB_NAME, timeout=5) as conn:
+        conn.execute("PRAGMA busy_timeout = 5000")
+        conn.execute("""
+            INSERT INTO batteries (name, capacity, cells, cycles)
+            SELECT i.name, NULL, NULL, 0
+            FROM items i
+            WHERE i.category = 'Battery'
+              AND NOT EXISTS (
+                  SELECT 1 FROM batteries b WHERE b.name = i.name
+              )
+        """)
 
 
 @app.before_request
@@ -72,11 +73,11 @@ def home():
     db = get_db()
 
     aircraft_count = db.execute("SELECT COUNT(*) FROM aircraft").fetchone()[0]
-    flight_count = db.execute("SELECT COUNT(*) FROM flights").fetchone()[0]
     total_minutes = db.execute("SELECT SUM(minutes) FROM flights").fetchone()[0] or 0
     item_count = db.execute("SELECT COUNT(*) FROM items").fetchone()[0]
 
     batteries = db.execute("SELECT * FROM batteries ORDER BY name").fetchall()
+    battery_count = len(batteries)
 
     top_aircraft = db.execute("""
         SELECT a.*, COALESCE(SUM(f.minutes), 0) AS total_minutes
@@ -106,7 +107,7 @@ def home():
         "home.html",
         aircraft_count=aircraft_count,
         item_count=item_count,
-        flight_count=flight_count,
+        battery_count=battery_count,
         top_aircraft=top_aircraft,
         batteries=batteries,
         pilot=pilot
@@ -119,9 +120,11 @@ def aircraft():
 
     aircraft = db.execute("""
     SELECT a.*,
+           b.name AS battery_name,
            SUM(f.minutes) AS total_minutes,
            COUNT(f.id) AS flight_count
     FROM aircraft a
+    LEFT JOIN batteries b ON a.default_battery_id = b.id
     LEFT JOIN flights f ON a.id = f.aircraft_id
     GROUP BY a.id
     ORDER BY a.name
@@ -426,7 +429,7 @@ def accessories():
     ORDER BY category,name
     """).fetchall()
 
-    return render_template("items.html", items=items, page_title="Accessories")
+    return render_template("items.html", items=items, page_title="RC Accessories")
 
 
 @app.route("/add_item", methods=["GET", "POST"])
@@ -449,15 +452,9 @@ def add_item():
             request.form["notes"]
         ))
 
-        if category == "Battery":
-            db.execute("""
-            INSERT INTO batteries (name, capacity, cells, cycles)
-            VALUES (?, NULL, NULL, 0)
-            """, (request.form["name"],))
-
         db.commit()
 
-        return redirect("/items")
+        return redirect("/accessories")
 
     return render_template("add_item.html", selected_category=category)
 
@@ -529,6 +526,48 @@ def delete_battery(battery_id):
     return redirect("/batteries")
 
 
+@app.route("/battery/<int:battery_id>")
+def battery_detail(battery_id):
+    db = get_db()
+
+    battery = db.execute(
+        "SELECT * FROM batteries WHERE id=?",
+        (battery_id,)
+    ).fetchone()
+
+    if not battery:
+        return redirect("/batteries")
+
+    associated_aircraft = db.execute(
+        """
+        SELECT a.*
+        FROM aircraft a
+        JOIN aircraft_batteries ab ON a.id = ab.aircraft_id
+        WHERE ab.battery_id = ?
+        ORDER BY a.name
+        """,
+        (battery_id,)
+    ).fetchall()
+
+    flights = db.execute(
+        """
+        SELECT f.*, a.name AS aircraft_name
+        FROM flights f
+        LEFT JOIN aircraft a ON f.aircraft_id = a.id
+        WHERE f.battery_id = ?
+        ORDER BY date DESC
+        """,
+        (battery_id,)
+    ).fetchall()
+
+    return render_template(
+        "battery_detail.html",
+        battery=battery,
+        associated_aircraft=associated_aircraft,
+        flights=flights
+    )
+
+
 @app.route("/item/<int:item_id>")
 def item_detail(item_id):
 
@@ -545,6 +584,86 @@ def item_detail(item_id):
     )
 
 
+@app.route("/edit_flight/<int:flight_id>", methods=["GET", "POST"])
+def edit_flight(flight_id):
+    db = get_db()
+
+    flight = db.execute(
+        "SELECT f.*, a.name AS aircraft_name FROM flights f JOIN aircraft a ON f.aircraft_id = a.id WHERE f.id = ?",
+        (flight_id,)
+    ).fetchone()
+
+    if not flight:
+        return redirect("/")
+
+    batteries = db.execute("SELECT * FROM batteries ORDER BY name").fetchall()
+
+    if request.method == "POST":
+        battery_id = request.form.get("battery")
+        minutes = request.form["minutes"]
+        notes = request.form.get("notes")
+
+        db.execute(
+            "UPDATE flights SET battery_id=?, minutes=?, notes=? WHERE id=?",
+            (battery_id if battery_id else None, minutes, notes, flight_id)
+        )
+        db.commit()
+        return redirect(f"/aircraft/{flight['aircraft_id']}")
+
+    return render_template(
+        "edit_flight.html",
+        flight=flight,
+        batteries=batteries
+    )
+
+
+@app.route("/delete_flight/<int:flight_id>", methods=["POST"])
+def delete_flight(flight_id):
+    db = get_db()
+    flight = db.execute("SELECT * FROM flights WHERE id=?", (flight_id,)).fetchone()
+    if flight:
+        db.execute("DELETE FROM flights WHERE id=?", (flight_id,))
+        db.commit()
+        return redirect(f"/aircraft/{flight['aircraft_id']}")
+    return redirect("/")
+
+
+@app.route("/edit_item/<int:item_id>", methods=["GET", "POST"])
+def edit_item(item_id):
+    db = get_db()
+
+    if request.method == "POST":
+        name = request.form["name"]
+        category = request.form["category"]
+        brand = request.form["brand"]
+        model = request.form["model"]
+        serial = request.form["serial"]
+        notes = request.form["notes"]
+
+        db.execute("""
+        UPDATE items
+        SET name=?, category=?, brand=?, model=?, serial=?, notes=?
+        WHERE id=?
+        """, (name, category, brand, model, serial, notes, item_id))
+        db.commit()
+        return redirect("/accessories")
+
+    item = db.execute(
+        "SELECT * FROM items WHERE id=?",
+        (item_id,)
+    ).fetchone()
+
+    return render_template("edit_item.html", item=item)
+
+
+@app.route("/delete_item/<int:item_id>", methods=["POST"])
+def delete_item(item_id):
+    db = get_db()
+    db.execute("DELETE FROM items WHERE id=?", (item_id,))
+    db.commit()
+    return redirect("/accessories")
+
+
 @app.route("/analytics")
 def analytics():
 
@@ -558,17 +677,46 @@ def analytics():
     """).fetchall()
 
     aircraft_usage = db.execute("""
-    SELECT a.name, COUNT(f.id) as flights
+    SELECT a.name, COUNT(f.id) as flights, SUM(f.minutes) as minutes
     FROM aircraft a
     LEFT JOIN flights f
     ON a.id = f.aircraft_id
     GROUP BY a.name
     """).fetchall()
 
+    battery_usage = db.execute("""
+    SELECT name, cycles
+    FROM batteries
+    ORDER BY cycles DESC
+    """).fetchall()
+
+    flight_logs = db.execute("""
+    SELECT f.id, f.date, f.minutes, f.notes,
+           a.name AS aircraft_name,
+           b.name AS battery_name
+    FROM flights f
+    LEFT JOIN aircraft a ON f.aircraft_id = a.id
+    LEFT JOIN batteries b ON f.battery_id = b.id
+    ORDER BY f.date DESC
+    """).fetchall()
+
+    flight_logs = [dict(row) for row in flight_logs]
+
+    # Extract labels and data for charts
+    aircraft_labels = [row['name'] for row in aircraft_usage]
+    aircraft_minutes = [row['minutes'] or 0 for row in aircraft_usage]
+    battery_labels = [row['name'] for row in battery_usage]
+    battery_cycles = [row['cycles'] for row in battery_usage]
+
     return render_template(
         "analytics.html",
         flights=flights,
-        aircraft_usage=aircraft_usage
+        aircraft_usage=aircraft_usage,
+        aircraft_labels=aircraft_labels,
+        aircraft_minutes=aircraft_minutes,
+        battery_labels=battery_labels,
+        battery_cycles=battery_cycles,
+        flight_logs=flight_logs
     )
 
 

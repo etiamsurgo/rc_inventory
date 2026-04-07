@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h2>Add RC Item</h2>
+<h2>Add RC Accessory</h2>
 
 <div class="form-container">
 
@@ -19,17 +19,17 @@
 <label>Category</label>
 
 <select name="category">
-<option value="Battery" {% if selected_category == 'Battery' %}selected{% endif %}>Battery</option>
-<option value="Motor" {% if selected_category == 'Motor' %}selected{% endif %}>Motor</option>
-<option value="ESC" {% if selected_category == 'ESC' %}selected{% endif %}>ESC</option>
-<option value="Servo" {% if selected_category == 'Servo' %}selected{% endif %}>Servo</option>
-<option value="Receiver" {% if selected_category == 'Receiver' %}selected{% endif %}>Receiver</option>
-<option value="Transmitter" {% if selected_category == 'Transmitter' %}selected{% endif %}>Transmitter</option>
-<option value="Remote ID" {% if selected_category == 'Remote ID' %}selected{% endif %}>Remote ID</option>
+<option value="Camera" {% if selected_category == 'Camera' %}selected{% endif %}>Camera</option>
 <option value="Charger" {% if selected_category == 'Charger' %}selected{% endif %}>Charger</option>
-<option value="Propeller" {% if selected_category == 'Propeller' %}selected{% endif %}>Propeller</option>
-<option value="FPV" {% if selected_category == 'FPV' %}selected{% endif %}>FPV</option>
-<option value="Tool" {% if selected_category == 'Tool' %}selected{% endif %}>Tool</option>
+<option value="ESC" {% if selected_category == 'ESC' %}selected{% endif %}>ESC</option>
+<option value="Flight Controller" {% if selected_category == 'Flight Controller' %}selected{% endif %}>Flight Controller</option>
+<option value="Goggles" {% if selected_category == 'Goggles' %}selected{% endif %}>Goggles</option>
+<option value="Motor" {% if selected_category == 'Motor' %}selected{% endif %}>Motor</option>
+<option value="Receiver" {% if selected_category == 'Receiver' %}selected{% endif %}>Receiver</option>
+<option value="Remote ID" {% if selected_category == 'Remote ID' %}selected{% endif %}>Remote ID</option>
+<option value="Servo" {% if selected_category == 'Servo' %}selected{% endif %}>Servo</option>
+<option value="Transmitter" {% if selected_category == 'Transmitter' %}selected{% endif %}>Transmitter</option>
+<option value="VTX" {% if selected_category == 'VTX' %}selected{% endif %}>VTX</option>
 <option value="Other" {% if selected_category == 'Other' %}selected{% endif %}>Other</option>
 </select>
 

@@ -57,26 +57,6 @@
 
 </div>
 
-
-<div class="quick-log">
-
-<h3>Quick Log</h3>
-
-{% if selected_aircraft %}
-
-<a class="quick-btn" href="/log_flight?minutes=5&aircraft={{ selected_aircraft }}">+5</a>
-<a class="quick-btn" href="/log_flight?minutes=7&aircraft={{ selected_aircraft }}">+7</a>
-<a class="quick-btn" href="/log_flight?minutes=10&aircraft={{ selected_aircraft }}">+10</a>
-
-{% else %}
-
-<p>Select aircraft first</p>
-
-{% endif %}
-
-</div>
-
-
 <script>
 
 const aircraftSelect = document.getElementById("aircraft_select")

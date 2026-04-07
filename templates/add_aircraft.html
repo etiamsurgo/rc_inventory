@@ -31,11 +31,19 @@
 
 <option value="">-- Select Type --</option>
 <option value="Aerobatic">Aerobatic</option>
+<option value="Biplane">Biplane</option>
+<option value="Cub">Cub</option>
+<option value="EDF">EDF</option>
+<option value="FPV">FPV</option>
 <option value="Glider">Glider</option>
 <option value="Jet">Jet</option>
+<option value="Park Flyer">Park Flyer</option>
+<option value="Racing">Racing</option>
+<option value="Scale">Scale</option>
 <option value="Sport">Sport</option>
 <option value="STOL">STOL</option>
 <option value="Trainer">Trainer</option>
+<option value="VTOL">VTOL</option>
 <option value="Warbird">Warbird</option>
 <option value="Wing">Wing</option>
 <option value="Helicopter">Helicopter</option>
@@ -67,11 +75,14 @@
 <label>Usable Batteries</label>
 
 {% if batteries %}
-<select name="usable_batteries[]" id="usable_batteries" multiple size="5">
+<div class="battery-list">
 {% for b in batteries %}
-<option value="{{ b.id }}">{{ b.name }}</option>
+<label>
+<input type="checkbox" name="usable_batteries[]" value="{{ b.id }}">
+{{ b.name }}
+</label>
 {% endfor %}
-</select>
+</div>
 {% else %}
 <p class="note">No batteries available to assign yet.</p>
 {% endif %}

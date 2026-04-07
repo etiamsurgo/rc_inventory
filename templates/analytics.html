@@ -2,6 +2,35 @@
 
 {% block content %}
 
+<h2>Flight Logs</h2>
+
+{% if flight_logs %}
+<div class="card">
+    <label for="flightLogSelect">Select Log Entry</label>
+    <select id="flightLogSelect">
+        {% for log in flight_logs %}
+        <option value="{{ log.id }}">{{ log.date }} — {{ log.minutes }} min — {{ log.aircraft_name or 'Unknown' }}</option>
+        {% endfor %}
+    </select>
+
+    <div id="flightLogDetails" class="flight-log-details">
+        <p><strong>Date:</strong> <span id="logDate"></span></p>
+        <p><strong>Aircraft:</strong> <span id="logAircraft"></span></p>
+        <p><strong>Battery:</strong> <span id="logBattery"></span></p>
+        <p><strong>Minutes:</strong> <span id="logMinutes"></span></p>
+        <p><strong>Notes:</strong> <span id="logNotes"></span></p>
+        <div class="card-actions">
+            <a id="flightLogEdit" class="btn small" href="#">Edit</a>
+            <form id="flightLogDeleteForm" method="POST" action="#" onsubmit="return confirm('Delete this flight log?');" class="inline-action">
+                <button class="btn small danger" type="submit">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% else %}
+<p>No flight logs available.</p>
+{% endif %}
+
 <h2>Battery Cycles</h2>
 
 <canvas id="batteryChart"></canvas>
@@ -28,6 +57,29 @@
 const data = JSON.parse(
 document.getElementById("chart-data").textContent
 )
+
+const flightLogs = {{ flight_logs | tojson }};
+
+function renderFlightLog(logId) {
+    const log = flightLogs.find(l => l.id === parseInt(logId, 10));
+    if (!log) return;
+
+    document.getElementById("logDate").textContent = log.date || "N/A";
+    document.getElementById("logAircraft").textContent = log.aircraft_name || "N/A";
+    document.getElementById("logBattery").textContent = log.battery_name || "N/A";
+    document.getElementById("logMinutes").textContent = log.minutes || "N/A";
+    document.getElementById("logNotes").textContent = log.notes || "";
+    document.getElementById("flightLogEdit").href = "/edit_flight/" + log.id;
+    document.getElementById("flightLogDeleteForm").action = "/delete_flight/" + log.id;
+}
+
+const flightSelect = document.getElementById("flightLogSelect");
+if (flightSelect) {
+    renderFlightLog(flightSelect.value);
+    flightSelect.addEventListener("change", function() {
+        renderFlightLog(this.value);
+    });
+}
 
 new Chart(document.getElementById("batteryChart"), {
 

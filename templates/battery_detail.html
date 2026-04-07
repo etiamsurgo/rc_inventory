@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<a class="btn" href="/batteries">← Back</a>
+<a class="btn" href="/edit_battery/{{ battery.id }}">Edit Battery</a>
+
+<h2>{{ battery.name }}</h2>
+
+<div class="card">
+
+<p><strong>Type:</strong> {{ battery.type or "—" }}</p>
+
+{% if battery.brand %}
+<p><strong>Brand:</strong> {{ battery.brand }}</p>
+{% endif %}
+
+{% if battery.capacity %}
+<p><strong>Capacity:</strong> {{ battery.capacity }} mAh</p>
+{% endif %}
+
+{% if battery.cells %}
+<p><strong>Cells:</strong> {{ battery.cells }}S</p>
+{% endif %}
+
+{% if battery.connector %}
+<p><strong>Connector:</strong> {{ battery.connector }}</p>
+{% endif %}
+
+<p><strong>Cycles:</strong> {{ battery.cycles }}</p>
+
+{% if battery.notes %}
+<p>{{ battery.notes }}</p>
+{% endif %}
+
+</div>
+
+<div class="card">
+<h3>Associated Aircraft</h3>
+{% if associated_aircraft %}
+<ul>
+{% for a in associated_aircraft %}
+<li>{{ a.name }}</li>
+{% endfor %}
+</ul>
+{% else %}
+<p>No aircraft assigned to this battery.</p>
+{% endif %}
+</div>
+
+<div class="card">
+<h3>Flight History</h3>
+{% if flights %}
+<table>
+<tr>
+<th>Date</th>
+<th>Aircraft</th>
+<th>Minutes</th>
+</tr>
+{% for f in flights %}
+<tr>
+<td>{{ f.date }}</td>
+<td>{{ f.aircraft_name or 'N/A' }}</td>
+<td>{{ f.minutes }}</td>
+</tr>
+{% endfor %}
+</table>
+{% else %}
+<p>No flights logged with this battery yet.</p>
+{% endif %}
+</div>
+
+{% endblock %}

@@ -27,17 +27,18 @@
 {% endif %}
 
 {% if a.battery_name %}
-<p><strong>Battery:</strong> {{ a.battery_name }}</p>
+<p><strong>Default Battery:</strong> {{ a.battery_name }}</p>
 {% endif %}
+
+<div class="card-actions">
+    <a class="btn small" href="/edit_aircraft/{{ a.id }}" onclick="event.stopPropagation();">Edit</a>
+    <form method="POST" action="/delete_aircraft/{{ a.id }}" onsubmit="event.stopPropagation(); return confirm('Delete this aircraft and all associated flights?');" class="inline-action">
+        <button class="btn small danger" type="submit">Delete</button>
+    </form>
+</div>
 
 <div class="flight-time">{{ a.total_minutes or 0 }} min</div>
 <div class="flight-label">TOTAL FLIGHT TIME</div>
-
-<div class="quick-log">
-<a href="/log_flight?quick=5&aircraft={{ a.id }}" class="quick-btn" onclick="event.stopPropagation();">+5</a>
-<a href="/log_flight?quick=7&aircraft={{ a.id }}" class="quick-btn" onclick="event.stopPropagation();">+7</a>
-<a href="/log_flight?quick=10&aircraft={{ a.id }}" class="quick-btn" onclick="event.stopPropagation();">+10</a>
-</div>
 
 </div>
 </a>

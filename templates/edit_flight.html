@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Edit Flight</h2>
+
+<div class="form-container">
+
+<form method="POST">
+
+<label>Aircraft</label>
+<input type="text" value="{{ flight.aircraft_name }}" disabled>
+
+<label>Date</label>
+<input type="text" value="{{ flight.date }}" disabled>
+
+<label>Battery</label>
+<select name="battery">
+    <option value="" {% if not flight.battery_id %}selected{% endif %}>-- None --</option>
+    {% for b in batteries %}
+    <option value="{{ b.id }}" {% if flight.battery_id == b.id %}selected{% endif %}>{{ b.name }}</option>
+    {% endfor %}
+</select>
+
+<label>Minutes</label>
+<input type="number" name="minutes" required value="{{ flight.minutes }}">
+
+<label>Notes</label>
+<textarea name="notes">{{ flight.notes }}</textarea>
+
+<button class="btn" type="submit">Update Flight</button>
+<a class="btn secondary" href="/aircraft/{{ flight.aircraft_id }}">Cancel</a>
+
+</form>
+
+</div>
+
+{% endblock %}

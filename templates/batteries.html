@@ -10,6 +10,7 @@
 
 {% for b in batteries %}
 
+<a href="{{ url_for('battery_detail', battery_id=b.id) }}" class="card-link">
 <div class="card">
 
 <h3>{{ b.name }}</h3>
@@ -43,13 +44,14 @@
 {% endif %}
 
 <div class="card-actions">
-<a class="btn small" href="/edit_battery/{{ b.id }}">Edit</a>
-<form method="POST" action="/delete_battery/{{ b.id }}" onsubmit="return confirm('Delete this battery?');" style="display:inline;">
+<a class="btn small" href="/edit_battery/{{ b.id }}" onclick="event.stopPropagation();">Edit</a>
+<form method="POST" action="/delete_battery/{{ b.id }}" onsubmit="event.stopPropagation(); return confirm('Delete this battery?');" style="display:inline;">
 <button class="btn small danger" type="submit">Delete</button>
 </form>
 </div>
 
 </div>
+</a>
 
 {% endfor %}
 
