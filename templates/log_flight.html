@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Log Flight</h2>
+
+<div class="form-container">
+
+<form method="post">
+
+<label>Aircraft</label>
+
+<select name="aircraft" id="aircraft_select" required>
+
+<option value="">-- Select Aircraft --</option>
+
+{% for a in aircraft %}
+<option value="{{ a.id }}" {% if selected_aircraft == a.id|string %}selected{% endif %}>
+{{ a.name }}
+</option>
+{% endfor %}
+
+</select>
+
+
+<label>Battery</label>
+
+<select name="battery">
+
+<option value="" {% if not default_battery_id %}selected{% endif %}>-- None --</option>
+
+{% for b in batteries %}
+<option value="{{ b.id }}" {% if default_battery_id == b.id %}selected{% endif %}>{{ b.name }}</option>
+{% endfor %}
+
+</select>
+
+{% if choose_battery %}
+<p class="note">No default battery set for this aircraft. Select the battery used to log this flight.</p>
+{% endif %}
+
+
+<label>Minutes</label>
+
+<input type="number" name="minutes" required value="{{ selected_minutes or '' }}">
+
+
+<label>Notes</label>
+
+<textarea name="notes"></textarea>
+
+
+<button class="btn" type="submit">Log Flight</button>
+
+
+</form>
+
+</div>
+
+<script>
+
+const aircraftSelect = document.getElementById("aircraft_select")
+
+aircraftSelect.addEventListener("change", function(){
+
+const aircraftId = this.value
+
+window.location = "/log_flight?aircraft=" + aircraftId
+
+})
+
+</script>
+
+
+{% endblock %}

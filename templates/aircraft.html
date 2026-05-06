@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Aircraft</h1>
+
+<a class="btn" href="/add_aircraft">+ Add Aircraft</a>
+
+<div class="grid">
+
+{% for a in aircraft %}
+
+<a href="{{ url_for('aircraft_detail', aircraft_id=a.id) }}" class="card-link">
+<div class="card {% if loop.index == 1 %}top-aircraft{% endif %}">
+{% if a.picture_filename %}
+    <img class="card-image" src="{{ url_for('uploaded_file', filename=a.picture_filename) }}" alt="{{ a.name }} picture">
+{% endif %}
+
+<h3>
+{{ a.name }}
+{% if loop.index == 1 %}
+<span class="badge">Top</span>
+{% endif %}
+</h3>
+
+<p><strong>Type:</strong> {{ a.type or "—" }}</p>
+
+{% if a.notes %}
+<p>{{ a.notes }}</p>
+{% endif %}
+
+{% if a.battery_name %}
+<p><strong>Default Battery:</strong> {{ a.battery_name }}</p>
+{% endif %}
+
+<div class="card-actions">
+    <a class="btn small" href="/edit_aircraft/{{ a.id }}" onclick="event.stopPropagation();">Edit</a>
+    <form method="POST" action="/delete_aircraft/{{ a.id }}" onsubmit="event.stopPropagation(); return confirm('Delete this aircraft and all associated flights?');" class="inline-action">
+        <button class="btn small danger" type="submit">Delete</button>
+    </form>
+</div>
+
+{% if a.manual_filename or a.receipt_filename %}
+<div class="card-files">
+    {% if a.manual_filename %}
+    <a class="file-link" href="{{ url_for('uploaded_file', filename=a.manual_filename) }}" target="_blank">Manual</a>
+    {% endif %}
+    {% if a.receipt_filename %}
+    <a class="file-link" href="{{ url_for('uploaded_file', filename=a.receipt_filename) }}" target="_blank">Receipt</a>
+    {% endif %}
+</div>
+{% endif %}
+
+<div class="flight-time">{{ a.total_minutes or 0 }} min</div>
+<div class="flight-label">TOTAL FLIGHT TIME</div>
+
+</div>
+</a>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

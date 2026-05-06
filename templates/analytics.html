@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Flight Analytics</h2>
+
+<div class="card filter-card">
+    <form method="GET" action="/analytics" class="filter-form">
+        <div>
+            <label for="aircraftSelect">Aircraft</label>
+            <select id="aircraftSelect" name="aircraft_id">
+                <option value="">All Aircraft</option>
+                {% for aircraft in aircraft_list %}
+                <option value="{{ aircraft.id }}" {% if selected_aircraft_id == aircraft.id %}selected{% endif %}>{{ aircraft.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="batterySelect">Battery</label>
+            <select id="batterySelect" name="battery_id">
+                <option value="">All Batteries</option>
+                {% for battery in battery_list %}
+                <option value="{{ battery.id }}" {% if selected_battery_id == battery.id %}selected{% endif %}>{{ battery.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-actions">
+            <button class="btn small" type="submit">Apply</button>
+            <a class="btn small secondary" href="/analytics">Clear</a>
+        </div>
+    </form>
+</div>
+
+<h2>Flight Logs</h2>
+
+{% if flight_logs %}
+<div class="card">
+    <label for="flightLogSelect">Select Log Entry</label>
+    <select id="flightLogSelect">
+        {% for log in flight_logs %}
+        <option value="{{ log.id }}">{{ log.date }} — {{ log.minutes }} min — {{ log.aircraft_name or 'Unknown' }}</option>
+        {% endfor %}
+    </select>
+
+    <div id="flightLogDetails" class="flight-log-details">
+        <p><strong>Date:</strong> <span id="logDate"></span></p>
+        <p><strong>Aircraft:</strong> <span id="logAircraft"></span></p>
+        <p><strong>Battery:</strong> <span id="logBattery"></span></p>
+        <p><strong>Minutes:</strong> <span id="logMinutes"></span></p>
+        <p><strong>Notes:</strong> <span id="logNotes"></span></p>
+        <div class="card-actions">
+            <a id="flightLogEdit" class="btn small" href="#">Edit</a>
+            <form id="flightLogDeleteForm" method="POST" action="#" onsubmit="return confirm('Delete this flight log?');" class="inline-action">
+                <button class="btn small danger" type="submit">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% else %}
+<p>No flight logs available.</p>
+{% endif %}
+
+<h2>Battery Flight Time</h2>
+
+<canvas id="batteryChart"></canvas>
+
+<h2>Aircraft Flight Time</h2>
+
+<canvas id="flightChart"></canvas>
+
+
+<script id="chart-data" type="application/json">
+
+{
+"battery_labels": {{ battery_labels | tojson }},
+"battery_minutes": {{ battery_minutes | tojson }},
+"aircraft_labels": {{ aircraft_labels | tojson }},
+"aircraft_minutes": {{ aircraft_minutes | tojson }}
+}
+
+</script>
+
+
+<script>
+
+const data = JSON.parse(
+document.getElementById("chart-data").textContent
+)
+
+const flightLogs = {{ flight_logs | tojson }};
+
+function renderFlightLog(logId) {
+    const log = flightLogs.find(l => l.id === parseInt(logId, 10));
+    if (!log) return;
+
+    document.getElementById("logDate").textContent = log.date || "N/A";
+    document.getElementById("logAircraft").textContent = log.aircraft_name || "N/A";
+    document.getElementById("logBattery").textContent = log.battery_name || "N/A";
+    document.getElementById("logMinutes").textContent = log.minutes || "N/A";
+    document.getElementById("logNotes").textContent = log.notes || "";
+    document.getElementById("flightLogEdit").href = "/edit_flight/" + log.id;
+    document.getElementById("flightLogDeleteForm").action = "/delete_flight/" + log.id;
+}
+
+const flightSelect = document.getElementById("flightLogSelect");
+if (flightSelect) {
+    renderFlightLog(flightSelect.value);
+    flightSelect.addEventListener("change", function() {
+        renderFlightLog(this.value);
+    });
+}
+
+new Chart(document.getElementById("batteryChart"), {
+
+    type: "bar",
+    data: {
+        labels: data.battery_labels,
+        datasets: [
+            {
+                label: "Battery Flight Minutes",
+                data: data.battery_minutes
+            }
+        ]
+    }
+})
+
+
+new Chart(document.getElementById("flightChart"), {
+
+type: "bar",
+
+data: {
+
+labels: data.aircraft_labels,
+
+datasets: [
+
+{
+label: "Flight Minutes",
+data: data.aircraft_minutes
+}
+
+]
+
+}
+
+})
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Dashboard</h2>
+
+<div class="grid">
+
+<!-- Pilot Info -->
+<div class="card">
+
+<h3>Pilot Info</h3>
+
+{% if pilot and pilot.name %}
+
+<p><b>Name:</b> {{ pilot.name }}</p>
+
+<p><b>AMA #:</b> {{ pilot.ama_number }}</p>
+
+{% if pilot.ama_expiration %}
+<p><b>AMA Exp:</b> {{ pilot.ama_expiration }}
+{% if pilot.ama_expiration_label %}
+<span class="expiration-badge {{ pilot.ama_expiration_status }}">{{ pilot.ama_expiration_label }}</span>
+{% endif %}
+</p>
+{% endif %}
+
+<p><b>FAA #:</b> {{ pilot.faa_number }}</p>
+
+{% if pilot.faa_expiration %}
+<p><b>FAA Exp:</b> {{ pilot.faa_expiration }}
+{% if pilot.faa_expiration_label %}
+<span class="expiration-badge {{ pilot.faa_expiration_status }}">{{ pilot.faa_expiration_label }}</span>
+{% endif %}
+</p>
+{% endif %}
+
+{% else %}
+
+<p>No profile set.</p>
+<a class="btn" href="/profile">Set Profile</a>
+
+{% endif %}
+
+</div>
+
+
+<!-- Fleet Summary -->
+<div class="card">
+
+<h3>Fleet Summary</h3>
+
+<div class="stats">
+
+<div class="stat">
+<div class="stat-number">{{ aircraft_count }}</div>
+<div class="stat-label">Aircraft</div>
+</div>
+
+<div class="stat">
+<div class="stat-number">{{ battery_count }}</div>
+<div class="stat-label">Batteries</div>
+</div>
+
+<div class="stat">
+<div class="stat-number">{{ item_count }}</div>
+<div class="stat-label">Items</div>
+</div>
+
+</div>
+
+</div>
+
+<!-- Top Aircraft -->
+<div class="card">
+
+<h3>Top Aircraft</h3>
+
+{% if top_aircraft and top_aircraft.name %}
+
+{% if top_aircraft.picture_filename %}
+    <img class="card-image" src="{{ url_for('uploaded_file', filename=top_aircraft.picture_filename) }}" alt="{{ top_aircraft.name }} picture">
+{% endif %}
+
+<p class="top-aircraft-name">✈️ {{ top_aircraft.name }}</p>
+
+<p>
+<strong>Total Flight Time:</strong>
+{{ top_aircraft.total_minutes }} min
+</p>
+
+{% else %}
+
+<p>No flights logged yet.</p>
+
+{% endif %}
+
+</div>
+
+
+<!-- Battery Alerts -->
+<div class="card">
+
+<h3>Battery Alerts</h3>
+
+<ul>
+
+{% for b in batteries %}
+
+{% if b.cycles >= 200 %}
+<li class="warning">{{ b.name }} - {{ b.cycles }} cycles (Replace)</li>
+
+{% elif b.cycles >= 150 %}
+<li>{{ b.name }} - {{ b.cycles }} cycles (Aging)</li>
+
+{% endif %}
+
+{% endfor %}
+
+</ul>
+
+</div>
+
+</div>
+
+
+{% endblock %}

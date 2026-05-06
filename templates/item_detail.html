@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="detail-actions">
+    <a class="btn" href="/accessories">← Back</a>
+    <a class="btn" href="/edit_item/{{ item.id }}">Edit Item</a>
+    <form method="POST" action="/delete_item/{{ item.id }}" onsubmit="return confirm('Delete this accessory?');" class="inline-action">
+        <button class="btn danger" type="submit">Delete Item</button>
+    </form>
+</div>
+
+<div class="card file-card">
+    <h3>Manuals & Receipts</h3>
+    {% if item.manual_filename %}
+    <p><a href="{{ url_for('uploaded_file', filename=item.manual_filename) }}" target="_blank">Download User Manual</a></p>
+    {% else %}
+    <p>No manual uploaded yet.</p>
+    {% endif %}
+
+    {% if item.receipt_filename %}
+    <p><a href="{{ url_for('uploaded_file', filename=item.receipt_filename) }}" target="_blank">Download Receipt</a></p>
+    {% else %}
+    <p>No receipt uploaded yet.</p>
+    {% endif %}
+
+</div>
+
+<div class="card">
+
+<h2>{{ item.name }}</h2>
+
+<p><strong>Category:</strong> {{ item.category }}</p>
+
+{% if item.brand %}
+<p><strong>Brand:</strong> {{ item.brand }}</p>
+{% endif %}
+
+{% if item.model %}
+<p><strong>Model:</strong> {{ item.model }}</p>
+{% endif %}
+
+{% if item.serial %}
+<p><strong>Serial:</strong> {{ item.serial }}</p>
+{% endif %}
+
+{% if item.notes %}
+<p><strong>Notes:</strong></p>
+<p>{{ item.notes }}</p>
+{% endif %}
+
+</div>
+
+{% endblock %}

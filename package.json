@@ -1,0 +1,50 @@
+{
+  "name": "rc-inventory",
+  "version": "1.0.0",
+  "description": "RC Inventory - Local Inventory App",
+  "main": "electron/main.js",
+  "homepage": "./",
+  "scripts": {
+    "electron-dev": "electron .",
+    "electron-build": "electron-builder",
+    "build-exe": "python -m PyInstaller --name rc_inventory --onefile --windowed --add-data \"templates;templates\" --add-data \"static;static\" --add-data \"instance;instance\" app.py",
+    "dist": "npm run build-exe && npm run electron-build"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.5.0"
+  },
+  "build": {
+    "appId": "com.rcinventory.app",
+    "productName": "RC Inventory",
+    "files": [
+      "electron/**/*",
+      "dist/**/*",
+      "node_modules/**/*"
+    ],
+    "asarUnpack": [
+      "dist/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "win": {
+      "target": ["nsis"]
+    },
+    "artifactName": "${productName} Setup ${version}.${ext}",
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "mac": {
+      "target": ["dmg", "zip"],
+      "identity": null
+    },
+    "linux": {
+      "target": ["AppImage", "deb"]
+    }
+  }
+}

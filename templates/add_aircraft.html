@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Add Aircraft</h2>
+
+<div class="form-container">
+
+<form method="POST" enctype="multipart/form-data">
+
+<div class="form-grid">
+
+<div>
+<label>Manufacturer</label>
+<input type="text" name="manufacturer">
+</div>
+
+<div>
+<label>Model</label>
+<input type="text" name="model">
+</div>
+
+<div>
+<label>Nickname</label>
+<input type="text" name="name" required>
+</div>
+
+<div>
+<label>Type</label>
+<select name="type">
+
+<option value="">-- Select Type --</option>
+<option value="Aerobatic">Aerobatic</option>
+<option value="Biplane">Biplane</option>
+<option value="Cub">Cub</option>
+<option value="EDF">EDF</option>
+<option value="FPV">FPV</option>
+<option value="Glider">Glider</option>
+<option value="Jet">Jet</option>
+<option value="Park Flyer">Park Flyer</option>
+<option value="Racing">Racing</option>
+<option value="Scale">Scale</option>
+<option value="Sport">Sport</option>
+<option value="STOL">STOL</option>
+<option value="Trainer">Trainer</option>
+<option value="VTOL">VTOL</option>
+<option value="Warbird">Warbird</option>
+<option value="Wing">Wing</option>
+<option value="Helicopter">Helicopter</option>
+<option value="Multirotor">Multirotor</option>
+
+</select>
+</div>
+
+<div class="form-grid-full">
+<label>Default Battery</label>
+
+{% if batteries %}
+<select name="default_battery" id="default_battery">
+
+<option value="">-- None --</option>
+
+{% for b in batteries %}
+<option value="{{ b.id }}">{{ b.name }}</option>
+{% endfor %}
+
+</select>
+{% else %}
+<p class="note">No batteries found. Add battery records before selecting a default battery.</p>
+{% endif %}
+</div>
+
+<div class="form-grid-full">
+
+<label>Usable Batteries</label>
+
+{% if batteries %}
+<div class="battery-list">
+{% for b in batteries %}
+<label>
+<input type="checkbox" name="usable_batteries[]" value="{{ b.id }}">
+{{ b.name }}
+</label>
+{% endfor %}
+</div>
+{% else %}
+<p class="note">No batteries available to assign yet.</p>
+{% endif %}
+
+</div>
+
+<div class="form-grid-full">
+
+<label>Notes</label>
+
+<textarea name="notes"></textarea>
+
+</div>
+
+<div class="form-grid-full">
+<label>Upload User Manual</label>
+<input type="file" name="manual_file" accept=".pdf,.png,.jpg,.jpeg,.gif">
+</div>
+
+<div class="form-grid-full">
+<label>Upload Receipt</label>
+<input type="file" name="receipt_file" accept=".pdf,.png,.jpg,.jpeg,.gif">
+</div>
+
+<div class="form-grid-full">
+<label>Upload Picture</label>
+<input type="file" name="picture_file" accept=".png,.jpg,.jpeg,.gif">
+</div>
+
+<div class="form-grid-full">
+
+<button class="btn" type="submit">Save Aircraft</button>
+
+</div>
+
+</div>
+
+</form>
+
+</div>
+
+
+<script>
+
+const defaultBattery = document.getElementById("default_battery")
+
+if (defaultBattery) {
+    defaultBattery.addEventListener("change", function(){
+
+        const id = this.value
+
+        if(!id) return
+
+        const checkbox = document.querySelector(
+            "input[name='usable_batteries[]'][value='"+id+"']"
+        )
+
+        if(checkbox){
+            checkbox.checked = true
+        }
+
+    })
+}
+
+</script>
+
+{% endblock %}

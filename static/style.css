@@ -1,0 +1,527 @@
+/* ===== GLOBAL ===== */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f4f6f9;
+    color: #111827;
+}
+
+h1 {
+    margin: 0;
+    padding: 15px;
+    background: #1f2937;
+    color: white;
+    font-size: 20px;
+}
+
+/* ===== PAGE TITLES ===== */
+
+.container h1,
+.container h2 {
+    margin-top: 0;
+}
+
+h2 {
+    margin-bottom: 10px;
+    margin-top: 20px;
+}
+
+h3 {
+    margin-top: 0;
+}
+
+
+/* ===== NAV ===== */
+nav {
+    background: #111827;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-main a {
+    margin-right: 15px;
+}
+
+.nav-quick {
+    display: flex;
+    gap: 10px;
+}
+
+.quick-action {
+    font-size: 12px;
+    padding: 4px 8px;
+    background: #374151;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #d1d5db;
+}
+
+.quick-action:hover {
+    background: #4b5563;
+    color: white;
+}
+
+
+/* ===== LAYOUT ===== */
+.container {
+    padding: 15px;
+    max-width: 1100px;
+    margin: auto;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+
+/* ===== CARD ===== */
+.card-link {
+    text-decoration: none;
+    color: inherit;
+    display: contents;
+}
+
+.card {
+    background: white;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    position: relative;
+    transition: 0.15s;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.card-image {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.08);
+}
+
+.card-link:hover .card {
+    transform: translateY(-3px);
+}
+
+.flight-time {
+    font-size: 32px;
+    font-weight: bold;
+    color: #2563eb;
+    text-align: center;
+    margin: 10px 0 0 0;
+}
+
+.flight-label {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #6b7280;
+}
+
+.item-category {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #6b7280;
+    text-transform: uppercase;
+}
+
+.item-brand {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2563eb;
+    margin-top: 8px;
+}
+
+.item-model {
+    font-size: 16px;
+    color: #374151;
+}
+
+
+/* Improve spacing inside cards */
+.card p {
+    margin: 6px 0;
+}
+
+.card strong {
+    color: #374151;
+}
+
+
+/* ===== ACTION CARDS ===== */
+.action-card {
+    background: #2563eb;
+    color: white;
+    padding: 12px;
+}
+
+.action-card h3 {
+    color: white;
+}
+
+.action-card p {
+    color: #e5e7eb;
+}
+
+.action-card:hover {
+    background: #1d4ed8;
+    transform: translateY(-4px);
+}
+
+
+/* ===== QUICK LOG (AIRCRAFT) ===== */
+.quick-log {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+}
+
+.quick-btn {
+    flex: 1;
+    text-align: center;
+    padding: 14px 0;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 10px;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+}
+
+.quick-btn:hover {
+    background: #1d4ed8;
+}
+
+
+/* ===== DASHBOARD STATS ===== */
+.stats {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.stat {
+    flex: 1;
+    background: #f3f4f6;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: bold;
+    color: #2563eb;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
+}
+
+
+/* ===== BUTTONS ===== */
+.btn {
+    display: inline-block;
+    padding: 8px 14px;
+    background: #2563eb;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 12px;
+}
+
+.btn:hover {
+    background: #1d4ed8;
+}
+
+.btn.small {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.btn.danger {
+    background: #ef4444;
+}
+
+.btn.danger:hover {
+    background: #dc2626;
+}
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.inline-action {
+    display: inline-block;
+    margin: 0;
+}
+
+.detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.detail-actions form {
+    margin: 0;
+}
+
+.file-card {
+    margin-bottom: 20px;
+}
+
+.file-card h3 {
+    margin-top: 0;
+}
+
+.file-card p {
+    margin: 6px 0;
+}
+.card-files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.file-link {
+    display: inline-block;
+    font-size: 13px;
+    color: #1d4ed8;
+    text-decoration: none;
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+    padding: 5px 10px;
+    border-radius: 999px;
+}
+
+.file-link:hover {
+    background: #dbeafe;
+}
+
+/* ===== FORM ===== */
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+}
+
+.form-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.filter-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    align-items: end;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.form-grid-full {
+    grid-column: 1 / -1;
+}
+
+.battery-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+}
+
+.battery-list label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background: white;
+}
+
+.battery-list input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #2563eb;
+    border-radius: 50%;
+}
+
+
+/* ===== QUICK LOG SECTION ===== */
+.quick-row {
+    padding: 12px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.quick-title {
+    font-weight: bold;
+    margin-bottom: 6px;
+    font-size: 15px;
+}
+
+
+/* ===== MOST USED AIRCRAFT ===== */
+.top-aircraft,
+.battery-card,
+.accessory-card {
+    background: rgba(37, 99, 235, 0.08);
+}
+
+
+/* ===== BADGE ===== */
+.badge {
+    background: #f59e0b;
+    color: #111;
+    padding: 2px 6px;
+    font-size: 11px;
+    border-radius: 4px;
+    margin-left: 6px;
+}
+
+.expiration-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 12px;
+    border-radius: 999px;
+    margin-left: 8px;
+}
+
+.expiration-badge.green {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.expiration-badge.yellow {
+    background: #fef3c7;
+    color: #78350f;
+}
+
+.expiration-badge.red {
+    background: #fecaca;
+    color: #7f1d1d;
+}
+
+.expiration-alert {
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.expiration-alert.green {
+    background: #ecfdf5;
+    color: #065f46;
+}
+
+.expiration-alert.yellow {
+    background: #fefce8;
+    color: #92400e;
+}
+
+.expiration-alert.red {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+
+/* ===== WARNINGS ===== */
+.warning {
+    color: #dc2626;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+
+/* ===== TABLE ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+    background: #f9fafb;
+    font-weight: bold;
+}
+
+
+/* ===== MOBILE ===== */
+@media (max-width: 600px) {
+
+    h1 {
+        font-size: 18px;
+        text-align: center;
+    }
+
+    nav {
+        text-align: center;
+    }
+
+    nav a {
+        display: inline-block;
+        margin: 5px 8px;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    .card {
+        padding: 14px;
+    }
+
+    .quick-btn {
+        width: 30%;
+        padding: 16px 0;
+    }
+}
+
+
+/* ===== TOP AIRCRAFT DASHBOARD ===== */
+.top-aircraft-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2563eb;
+    margin: 10px 0;
+}

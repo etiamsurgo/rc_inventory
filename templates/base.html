@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>RC Inventory</title>
+
+<link rel="stylesheet" href="/static/style.css">
+<link rel="manifest" href="/static/manifest.json">
+<link rel="apple-touch-icon" href="/static/icons/icon.svg">
+<meta name="theme-color" content="#1f2937">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<h1>RC Inventory</h1>
+
+<nav>
+<div class="nav-main">
+<a href="/">Home</a>
+<a href="/aircraft">Aircraft</a>
+<a href="/batteries">Batteries</a>
+<a href="/accessories">Accessories</a>
+<a href="/log_flight">Log Flight</a>
+<a href="/analytics">Analytics</a>
+<a href="/profile">Profile</a>
+</div>
+<div class="nav-quick">
+<a href="/add_aircraft" class="quick-action">+ Aircraft</a>
+<a href="/add_battery" class="quick-action">+ Battery</a>
+<a href="/add_item?category=Accessory" class="quick-action">+ Accessory</a>
+<a href="/log_flight" class="quick-action">+ Log</a>
+</div>
+</nav>
+
+<div class="container">
+{% block content %}
+{% endblock %}
+</div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/static/sw.js').catch(function(error) {
+      console.warn('Service worker registration failed:', error);
+    });
+  });
+}
+</script>
+
+</body>
+</html>
