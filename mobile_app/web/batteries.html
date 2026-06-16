@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Batteries - RC Inventory</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+<h1>Batteries</h1>
+</header>
+<nav>
+  <div class="nav-main">
+    <a href="index.html">Home</a>
+    <a href="aircraft.html">Aircraft</a>
+    <a href="batteries.html">Batteries</a>
+    <a href="items.html">Accessories</a>
+  </div>
+</nav>
+<main class="container">
+  <div id="battery-list" class="grid"></div>
+</main>
+<script src="/static/sqlite-adapter.js"></script>
+<script src="/static/data-layer.js"></script>
+<script>
+(async function(){
+  try{
+    await DataLayer.init();
+    const batteries = await DataLayer.getBatteries();
+    const container = document.getElementById('battery-list');
+    if(!batteries || batteries.length===0){
+      container.innerHTML = '<p>No batteries found.</p>';
+      return;
+    }
+    container.innerHTML = batteries.map(b => `
+      <div class="card">
+        <div class="item-brand">${b.name}</div>
+        <div class="item-model">${b.brand || ''} • ${b.capacity || ''}mAh</div>
+        <div class="card-actions">
+          <a class="btn small" href="#" onclick="alert('Open battery: ${b.id}')">Open</a>
+        </div>
+      </div>
+    `).join('');
+  }catch(err){
+    console.error(err);
+    document.getElementById('battery-list').innerText = 'Error loading batteries.';
+  }
+})();
+</script>
+</body>
+</html>

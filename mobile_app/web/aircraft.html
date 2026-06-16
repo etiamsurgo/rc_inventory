@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aircraft - RC Inventory</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+<h1>Aircraft</h1>
+</header>
+<nav>
+  <div class="nav-main">
+    <a href="index.html">Home</a>
+    <a href="aircraft.html">Aircraft</a>
+    <a href="batteries.html">Batteries</a>
+    <a href="items.html">Accessories</a>
+  </div>
+</nav>
+<main class="container">
+  <div id="aircraft-list" class="grid"></div>
+</main>
+<script src="/static/sqlite-adapter.js"></script>
+<script src="/static/data-layer.js"></script>
+<script>
+(async function(){
+  try{
+    await DataLayer.init();
+    const aircraft = await DataLayer.getAircraft();
+    const container = document.getElementById('aircraft-list');
+    if(!aircraft || aircraft.length===0){
+      container.innerHTML = '<p>No aircraft found.</p>';
+      return;
+    }
+    container.innerHTML = aircraft.map(a => `
+      <a class="card-link" href="aircraft_detail.html?id=${a.id}">
+      <div class="card">
+        <div>
+          <div class="item-category">${a.type || ''}</div>
+          <div class="item-brand">${a.name || a.manufacturer || 'Unnamed'}</div>
+          <div class="item-model">${a.model || ''}</div>
+        </div>
+      </div>
+      </a>
+    `).join('');
+  }catch(err){
+    console.error(err);
+    document.getElementById('aircraft-list').innerText = 'Error loading aircraft.';
+  }
+})();
+</script>
+</body>
+</html>

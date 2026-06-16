@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accessories - RC Inventory</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+<h1>Accessories</h1>
+</header>
+<nav>
+  <div class="nav-main">
+    <a href="index.html">Home</a>
+    <a href="aircraft.html">Aircraft</a>
+    <a href="batteries.html">Batteries</a>
+    <a href="items.html">Accessories</a>
+  </div>
+</nav>
+<main class="container">
+  <div id="items-list" class="grid"></div>
+</main>
+<script src="/static/sqlite-adapter.js"></script>
+<script src="/static/data-layer.js"></script>
+<script>
+(async function(){
+  try{
+    await DataLayer.init();
+    const items = await DataLayer.getItems();
+    const container = document.getElementById('items-list');
+    if(!items || items.length===0){
+      container.innerHTML = '<p>No items found.</p>';
+      return;
+    }
+    container.innerHTML = items.map(i => `
+      <div class="card">
+        <div class="item-category">${i.category || ''}</div>
+        <div class="item-brand">${i.name}</div>
+        <div class="item-model">${i.brand || ''} ${i.model || ''}</div>
+      </div>
+    `).join('');
+  }catch(err){
+    console.error(err);
+    document.getElementById('items-list').innerText = 'Error loading items.';
+  }
+})();
+</script>
+</body>
+</html>
