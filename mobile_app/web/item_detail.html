@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Item Detail - RC Inventory</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header><h1>Item Detail</h1></header>
+<nav>
+  <div class="nav-main">
+    <a href="index.html">Home</a>
+    <a href="items.html">Accessories</a>
+  </div>
+</nav>
+<main class="container">
+  <div id="detail"></div>
+</main>
+<script src="/static/sqlite-adapter.js"></script>
+<script src="/static/data-layer.js"></script>
+<script>
+function queryParam(name){
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name);
+}
+
+(async function(){
+  await DataLayer.init();
+  const id = queryParam('id');
+  if(!id){ document.getElementById('detail').innerText='No item id'; return; }
+  const items = await DataLayer.getItems();
+  const item = items.find(it=>String(it.id)===String(id));
+  if(!item){ document.getElementById('detail').innerText='Item not found'; return; }
+
+  document.getElementById('detail').innerHTML = `
+    <div class="card">
+      <div class="item-brand">${item.name}</div>
+      <div class="item-model">${item.brand || ''} ${item.model || ''}</div>
+      <p>${item.notes || ''}</p>
+      <div class="card-actions"><a class="btn" href="edit_item.html?id=${item.id}">Edit</a></div>
+    </div>
+  `;
+})();
+</script>
+</body>
+</html>

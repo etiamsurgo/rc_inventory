@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edit Aircraft - RC Inventory</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header><h1>Edit Aircraft</h1></header>
+<nav>
+  <div class="nav-main">
+    <a href="index.html">Home</a>
+    <a href="aircraft.html">Aircraft</a>
+  </div>
+</nav>
+<main class="container">
+  <form id="aircraft-form">
+    <label>Manufacturer<input name="manufacturer" /></label>
+    <label>Model<input name="model" /></label>
+    <label>Name<input name="name" /></label>
+    <label>Type<input name="type" /></label>
+    <label>Notes<textarea name="notes"></textarea></label>
+    <label>Picture<input type="file" name="picture" accept="image/*" /></label>
+    <div id="preview"></div>
+    <button class="btn" type="submit">Save</button>
+  </form>
+</main>
+<script src="/static/sqlite-adapter.js"></script>
+<script src="/static/filesystem-adapter.js"></script>
+<script src="/static/data-layer.js"></script>
+<script>
+function queryParam(name){
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name);
+}
+
+(async function(){
+  await DataLayer.init();
+  const id = queryParam('id');
+  if(!id) return;
+  const a = await DataLayer.getAircraftById(id);
+  const form = document.getElementById('aircraft-form');
+  const preview = document.getElementById('preview');
+  if(a){
+    form.manufacturer.value = a.manufacturer || '';
+    form.model.value = a.model || '';
+    form.name.value = a.name || '';
+    form.type.value = a.type || '';
+    form.notes.value = a.notes || '';
+    if(a.picture_filename) preview.innerHTML = `<img src="${a.picture_filename}" style="max-width:120px; border-radius:8px;">`, preview.dataset.path = a.picture_filename;
+  }
+
+  form.picture.addEventListener('change', async function(e){
+    const f = e.target.files[0];
+    if(!f) return;
+    const saved = await FilesystemAdapter.saveFile(f);
+    preview.innerHTML = `<img src="${saved.url||''}" style="max-width:120px; border-radius:8px;">`;
+    preview.dataset.path = saved.path || '';
+  });
+
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    const fd = new FormData(form);
+    const picture_path = preview.dataset.path || null;
+    await DataLayer.updateAircraft(id, { manufacturer: fd.get('manufacturer'), model: fd.get('model'), name: fd.get('name'), type: fd.get('type'), notes: fd.get('notes'), picture_filename: picture_path });
+    window.location.href = `aircraft_detail.html?id=${id}`;
+  });
+})();
+</script>
+</body>
+</html>

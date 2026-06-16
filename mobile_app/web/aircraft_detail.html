@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aircraft Detail - RC Inventory</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+<h1>Aircraft Detail</h1>
+</header>
+<nav>
+  <div class="nav-main">
+    <a href="index.html">Home</a>
+    <a href="aircraft.html">Aircraft</a>
+    <a href="batteries.html">Batteries</a>
+    <a href="items.html">Accessories</a>
+  </div>
+</nav>
+<main class="container">
+  <div id="detail"></div>
+</main>
+<script src="/static/sqlite-adapter.js"></script>
+<script src="/static/data-layer.js"></script>
+<script>
+function queryParam(name){
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name);
+}
+
+(async function(){
+  try{
+    await DataLayer.init();
+    const id = queryParam('id');
+    if(!id){ document.getElementById('detail').innerText='No aircraft id'; return; }
+    const a = await DataLayer.getAircraftById(id);
+    if(!a){ document.getElementById('detail').innerText='Aircraft not found'; return; }
+
+    const flights = await DataLayer.getFlightsForAircraft(id);
+
+    document.getElementById('detail').innerHTML = `
+      <div class="card">
+        <div class="item-category">${a.type || ''}</div>
+        <div class="item-brand">${a.name || a.manufacturer}</div>
+        <div class="item-model">${a.model || ''}</div>
+        <p>${a.notes || ''}</p>
+        <div class="card-actions">
+          <a class="btn" href="edit_aircraft.html?id=${a.id}">Edit</a>
+        </div>
+      </div>
+      <h3>Flights</h3>
+      <div class="grid">${flights.map(f=>`<div class="card"><div class="flight-time">${f.minutes||0}</div><div class="flight-label">mins on ${f.date||''}</div></div>`).join('')}</div>
+    `;
+  }catch(e){ console.error(e); document.getElementById('detail').innerText='Error loading'; }
+})();
+</script>
+</body>
+</html>
