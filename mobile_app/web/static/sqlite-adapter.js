@@ -48,5 +48,3 @@ const SQLiteAdapter = (function() {
 
 // Expose for app use
 window.SQLiteAdapter = SQLiteAdapter;
-
-export default SQLiteAdapter;

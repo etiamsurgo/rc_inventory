@@ -94,9 +94,7 @@ const FilesystemAdapter = (function(){
     return new Blob(byteArrays, {type: contentType});
   }
 
-  return { saveFile };
+  return { saveFile, getFileUrl, deleteFile };
 })();
 
 window.FilesystemAdapter = FilesystemAdapter;
-
-export default FilesystemAdapter;

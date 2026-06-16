@@ -205,5 +205,4 @@ const DataLayer = (function() {
 })();
 
 window.DataLayer = DataLayer;
-
-export default DataLayer;
+window.DataLayer = DataLayer;
