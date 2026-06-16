@@ -1,0 +1,20 @@
+/* Copied from project static/style.css */
+/* ===== GLOBAL ===== */
+body {
+	font-family: Arial, sans-serif;
+	margin: 0;
+	background: #f4f6f9;
+	color: #111827;
+}
+
+h1 {
+	margin: 0;
+	padding: 15px;
+	background: #1f2937;
+	color: white;
+	font-size: 20px;
+}
+
+/* (rest omitted for brevity in scaffold) */
+
+/* You can replace this with the full style.css later */
