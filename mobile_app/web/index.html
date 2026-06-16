@@ -19,11 +19,30 @@
     <a href="items.html">Accessories</a>
   </div>
 </nav>
-<main class="container">
-  <p>This is a packaged mobile shell. Dynamic pages will be implemented next.</p>
+<main id="main" class="container">
+  <p>Initializing app</p>
 </main>
+
 <script>
-  // Capacitor runtime will be injected when installed
+  async function initApp(){
+    const main = document.getElementById('main');
+    main.innerHTML = '<p>Initializing data layer...</p>';
+    try{
+      if(window.DataLayer && window.DataLayer.init){
+        await window.DataLayer.init();
+        // Data layer ready — navigate to aircraft list
+        window.location.href = 'aircraft.html';
+        return;
+      } else {
+        throw new Error('DataLayer not available');
+      }
+    }catch(err){
+      console.error('DataLayer init error', err);
+      main.innerHTML = '<p>Error initializing data layer. If running in a browser, native plugins are not available — open the pages manually or run on the emulator/device.</p>';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', initApp);
 </script>
 <script src="/static/sqlite-adapter.js"></script>
 <script src="/static/data-layer.js"></script>

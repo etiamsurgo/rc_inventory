@@ -1,0 +1,19 @@
+{
+  "name": "rc-inventory-mobile",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo 'no build step yet'",
+    "cap:init": "npx cap init rc-inventory com.rcinventory.app --web-dir=web",
+    "cap:android": "npx cap add android"
+  },
+  "dependencies": {
+    "@capacitor-community/sqlite": "^8.1.0",
+    "@capacitor/android": "^8.4.0",
+    "@capacitor/core": "latest",
+    "@capacitor/filesystem": "^8.1.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "latest"
+  }
+}
