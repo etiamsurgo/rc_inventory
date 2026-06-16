@@ -29,18 +29,48 @@ function queryParam(name){
   await DataLayer.init();
   const id = queryParam('id');
   if(!id){ document.getElementById('detail').innerText='No item id'; return; }
-  const items = await DataLayer.getItems();
-  const item = items.find(it=>String(it.id)===String(id));
+  const item = await DataLayer.getItemById(id);
   if(!item){ document.getElementById('detail').innerText='Item not found'; return; }
+  let imgHtml = '';
+  if(item.picture_filename){
+    const url = await FilesystemAdapter.getFileUrl(item.picture_filename, 'image/*');
+    imgHtml = `<div><img src="${url||item.picture_filename}" style="max-width:160px;border-radius:8px;"></div>`;
+  }
 
   document.getElementById('detail').innerHTML = `
     <div class="card">
+      ${imgHtml}
       <div class="item-brand">${item.name}</div>
       <div class="item-model">${item.brand || ''} ${item.model || ''}</div>
       <p>${item.notes || ''}</p>
-      <div class="card-actions"><a class="btn" href="edit_item.html?id=${item.id}">Edit</a></div>
+      <div class="card-actions">
+        <a class="btn" href="edit_item.html?id=${item.id}">Edit</a>
+        <a class="btn danger" id="delete-item">Delete</a>
+        ${item.picture_filename ? '<a class="btn" id="delete-image">Delete Image</a>' : ''}
+      </div>
     </div>
   `;
+
+  // Wire delete actions
+  document.getElementById('delete-item').addEventListener('click', async ()=>{
+    if(!confirm('Delete this item?')) return;
+    await DataLayer.deleteItem(item.id);
+    window.location.href = 'items.html';
+  });
+
+  const delImgBtn = document.getElementById('delete-image');
+  if(delImgBtn){
+    delImgBtn.addEventListener('click', async ()=>{
+      if(!confirm('Delete image?')) return;
+      const ok = await FilesystemAdapter.deleteFile(item.picture_filename);
+      if(ok){
+        await DataLayer.updateItem(item.id, Object.assign({}, item, { picture_filename: null }));
+        window.location.reload();
+      } else {
+        alert('Failed to delete image');
+      }
+    });
+  }
 })();
 </script>
 </body>

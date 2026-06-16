@@ -149,6 +149,21 @@ const DataLayer = (function() {
     return _parseQueryResult(res);
   }
 
+  async function getItemById(id){
+    const res = await SQLiteAdapter.query(DB, 'SELECT * FROM items WHERE id=?', [id]);
+    const rows = _parseQueryResult(res);
+    return rows && rows.length ? rows[0] : null;
+  }
+
+  async function updateItem(id, it){
+    const stmt = `UPDATE items SET name=?, category=?, brand=?, model=?, serial=?, notes=?, manual_filename=?, receipt_filename=?, picture_filename=? WHERE id=?`;
+    await SQLiteAdapter.execute(DB, [{ statement: stmt, values: [it.name, it.category || null, it.brand || null, it.model || null, it.serial || null, it.notes || null, it.manual_filename || null, it.receipt_filename || null, it.picture_filename || null, id] }]);
+  }
+
+  async function deleteItem(id){
+    await SQLiteAdapter.execute(DB, [{ statement: 'DELETE FROM items WHERE id=?', values: [id] }]);
+  }
+
   async function addItem(it) {
     const stmt = `INSERT INTO items (name, category, brand, model, serial, notes, manual_filename, receipt_filename, picture_filename) VALUES (?,?,?,?,?,?,?,?,?)`;
     await SQLiteAdapter.execute(DB, [{ statement: stmt, values: [it.name, it.category || null, it.brand || null, it.model || null, it.serial || null, it.notes || null, it.manual_filename || null, it.receipt_filename || null, it.picture_filename || null] }]);

@@ -33,13 +33,28 @@
       container.innerHTML = '<p>No items found.</p>';
       return;
     }
+    // build HTML and then populate preview URLs for items with pictures
     container.innerHTML = items.map(i => `
-      <div class="card">
+      <a class="card-link" href="item_detail.html?id=${i.id}">
+      <div class="card" data-id="${i.id}">
         <div class="item-category">${i.category || ''}</div>
         <div class="item-brand">${i.name}</div>
         <div class="item-model">${i.brand || ''} ${i.model || ''}</div>
+        <div class="thumb" style="margin-top:8px;"></div>
       </div>
+      </a>
     `).join('');
+
+    // fetch preview URLs for items that have picture_filename
+    for(const i of items){
+      if(i.picture_filename){
+        const url = await FilesystemAdapter.getFileUrl(i.picture_filename, 'image/*');
+        const card = container.querySelector(`.card[data-id="${i.id}"] .thumb`);
+        if(card){
+          card.innerHTML = `<img src="${url||i.picture_filename}" style="max-width:80px;border-radius:8px;">`;
+        }
+      }
+    }
   }catch(err){
     console.error(err);
     document.getElementById('items-list').innerText = 'Error loading items.';

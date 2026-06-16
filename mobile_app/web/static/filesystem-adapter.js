@@ -48,6 +48,36 @@ const FilesystemAdapter = (function(){
     }
   }
 
+  async function getFileUrl(path, contentType){
+    const plugin = getPlugin();
+    if(!plugin){
+      // Not persistent, return as-is
+      return null;
+    }
+    try{
+      const read = await plugin.readFile({ path, directory: 'DATA' });
+      const blob = b64toBlob(read.data, contentType || 'image/png');
+      return URL.createObjectURL(blob);
+    }catch(e){
+      console.warn('readFile failed', e);
+      return null;
+    }
+  }
+
+  async function deleteFile(path){
+    const plugin = getPlugin();
+    if(!plugin){
+      return false;
+    }
+    try{
+      await plugin.deleteFile({ path, directory: 'DATA' });
+      return true;
+    }catch(e){
+      console.warn('deleteFile failed', e);
+      return false;
+    }
+  }
+
   function b64toBlob(b64Data, contentType='', sliceSize=512){
     const byteCharacters = atob(b64Data);
     const byteArrays = [];
